@@ -1,0 +1,478 @@
+/* ==========================================================================
+   Tabs and the third (dual-document) workspace.
+   ========================================================================== */
+
+.tabbar {
+  flex: 0 0 var(--tabbar-h);
+  height: var(--tabbar-h);
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+  padding-left: 6px;
+  background: var(--tabbar-bg);
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+  position: relative;
+  z-index: 20;
+}
+
+.tabbar__tabs {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-top: 5px;
+  scrollbar-width: none;
+}
+
+.tabbar__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  min-width: 92px;
+  max-width: 210px;
+  height: 31px;
+  padding: 0 7px 0 10px;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  color: var(--text-secondary);
+  cursor: default;
+  transition: background var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+
+.tab:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.tab.is-active {
+  background: var(--bg-editor);
+  border-color: var(--border);
+  color: var(--text);
+  box-shadow: 0 -2px 0 var(--accent) inset;
+}
+
+.tab__icon {
+  flex: 0 0 auto;
+  color: var(--text-faint);
+}
+
+.tab.is-active .tab__icon {
+  color: var(--accent);
+}
+
+.tab__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  letter-spacing: -0.005em;
+}
+
+.tab__dirty {
+  flex: 0 0 auto;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--brand-yellow);
+}
+
+.tab__pane {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  min-width: 16px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 4px;
+  background: var(--bg-sunken);
+  color: var(--text-muted);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.tab__pane.is-current {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.tab__close {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  color: var(--text-faint);
+  opacity: 0;
+  transition: opacity var(--dur-fast) ease, background var(--dur-fast) ease;
+}
+
+.tab:hover .tab__close,
+.tab.is-active .tab__close {
+  opacity: 1;
+}
+
+.tab__close:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.tabbar__new {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 29px;
+  margin-left: 2px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  color: var(--text-muted);
+}
+
+.tabbar__new:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.tabbar__actions {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 8px 0 6px;
+  border-left: 1px solid var(--border);
+  background: var(--tabbar-bg);
+}
+
+.tabbar__modes {
+  height: 26px;
+}
+
+.tabbar__modes .segmented__item {
+  height: 22px;
+  padding: 0 7px;
+  font-size: 10.5px;
+}
+
+.tabbar__sep {
+  width: 1px;
+  height: 16px;
+  margin: 0 2px;
+  background: var(--border);
+}
+
+.tabbar__tool {
+  width: 26px;
+  height: 26px;
+}
+
+.tabbar__pane-label {
+  color: var(--text-faint);
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.swap-glyph {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* ---------- Dual document workspace ---------- */
+
+.dual-stage {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  display: grid;
+  background: var(--bg-sunken);
+}
+
+.dual-pane {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-editor);
+  position: relative;
+}
+
+.dual-pane.is-active {
+  background: var(--bg-editor);
+}
+
+.dual-pane__head {
+  flex: 0 0 auto;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 7px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
+
+.dual-pane.is-active .dual-pane__head {
+  box-shadow: 0 -2px 0 var(--accent) inset;
+}
+
+.dual-pane__badge {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  background: var(--bg-sunken);
+  color: var(--text-faint);
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.dual-pane__badge.is-active {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.dual-pane__doc {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dual-pane__select {
+  width: 100%;
+  height: 26px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+  outline: none;
+}
+
+.dual-pane__select:hover {
+  background: var(--bg-hover);
+}
+
+.dual-pane__view {
+  flex: 0 0 auto;
+  height: 24px;
+}
+
+.dual-pane__view .segmented__item {
+  height: 20px;
+  padding: 0 6px;
+  font-size: 10px;
+}
+
+.dual-pane__tool {
+  width: 25px;
+  height: 25px;
+  color: var(--text-muted);
+}
+
+.dual-pane__body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.dual-pane__empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--text-muted);
+  text-align: center;
+  font-size: 11.5px;
+  padding: 24px;
+}
+
+.dual-pane__empty strong {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.dual-pane__empty svg {
+  color: var(--text-faint);
+}
+
+.dual-splitter {
+  position: relative;
+  background: var(--bg-sunken);
+  touch-action: none;
+}
+
+.dual-splitter.is-columns {
+  cursor: col-resize;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+
+.dual-splitter.is-rows {
+  cursor: row-resize;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.dual-splitter span {
+  position: absolute;
+  border-radius: 99px;
+  background: var(--border-strong);
+  opacity: 0.6;
+  transition: opacity var(--dur-fast) ease, background var(--dur-fast) ease;
+}
+
+.dual-splitter.is-columns span {
+  top: 50%;
+  left: 2px;
+  width: 2px;
+  height: 28px;
+  transform: translateY(-50%);
+}
+
+.dual-splitter.is-rows span {
+  left: 50%;
+  top: 2px;
+  width: 28px;
+  height: 2px;
+  transform: translateX(-50%);
+}
+
+.dual-splitter:hover span {
+  background: var(--accent);
+  opacity: 1;
+}
+
+.pane-seamless {
+  height: 100%;
+  overflow: auto;
+  position: relative;
+  background: var(--bg-editor);
+}
+
+.pane-seamless__host {
+  min-height: 100%;
+}
+
+.pane-seamless .milkdown {
+  min-height: 100%;
+  background: transparent;
+}
+
+.pane-seamless .milkdown .ProseMirror {
+  min-height: 100%;
+  max-width: min(var(--content-width), calc(100% - 52px));
+  margin: 0 auto;
+  padding: 38px 28px 100px;
+  outline: none;
+  color: var(--text);
+  font-family: var(--font-editor);
+  font-size: var(--editor-font-size);
+  line-height: var(--editor-line-height);
+  caret-color: var(--accent);
+}
+
+.pane-seamless.is-typewriter .milkdown .ProseMirror {
+  padding-bottom: 45vh;
+}
+
+.pane-seamless .milkdown .ProseMirror h1,
+.pane-seamless .milkdown .ProseMirror h2,
+.pane-seamless .milkdown .ProseMirror h3,
+.pane-seamless .milkdown .ProseMirror h4,
+.pane-seamless .milkdown .ProseMirror h5,
+.pane-seamless .milkdown .ProseMirror h6 {
+  font-family: var(--font-editor);
+}
+
+.pane-source {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-editor);
+  overflow: hidden;
+}
+
+.pane-source__host {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pane-source__host > .cm-editor {
+  flex: 1;
+  min-height: 0;
+}
+
+.pane-source .cm-editor {
+  height: 100%;
+  background: transparent;
+}
+
+.pane-source .cm-scroller {
+  padding: 28px 24px 90px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.pane-source .cm-gutters {
+  display: none;
+}
+
+.pane-source .cm-editor.cm-focused {
+  outline: none;
+}
+
+.pane-source .cm-content {
+  caret-color: var(--accent);
+}
+
+.pane-source .cm-selectionBackground,
+.pane-source .cm-content ::selection {
+  background: var(--selection) !important;
+}
+
+.pane-editor-loading,
+.pane-editor-error {
+  position: absolute;
+  left: 50%;
+  top: 24px;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-1);
+  color: var(--text-muted);
+  font-size: 10.5px;
+  pointer-events: none;
+}
+
+.pane-editor-error {
+  color: var(--danger);
+}

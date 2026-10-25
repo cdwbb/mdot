@@ -1,0 +1,11 @@
+# Normalise line endings so a Windows-authored repo stays clean for macOS/Linux contributors.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.icns binary
+*.ico binary
+*.woff2 binary
+*.exe binary
+*.msi binary
+*.dmg binary

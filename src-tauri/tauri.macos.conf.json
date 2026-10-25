@@ -1,0 +1,25 @@
+{
+  "bundle": {
+    "targets": ["dmg"]
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "mdot",
+        "width": 1380,
+        "height": 880,
+        "minWidth": 1000,
+        "minHeight": 640,
+        "center": true,
+        "resizable": true,
+        "visible": false,
+        "decorations": true,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "shadow": true,
+        "dragDropEnabled": true
+      }
+    ]
+  }
+}

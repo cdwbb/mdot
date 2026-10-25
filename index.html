@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light" data-palette="paper">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>mdot</title>
+    <link rel="icon" type="image/svg+xml" href="/mdot.svg" />
+    <script>
+      // Paint the correct theme before the app boots (avoids a white flash).
+      (function () {
+        try {
+          var raw = localStorage.getItem('mdot.settings');
+          var saved = raw ? JSON.parse(raw) : null;
+          var pref = (saved && saved.theme) || 'system';
+          if (pref === 'light') pref = 'paper';
+          if (pref === 'dark') pref = 'ink';
+          var palettes = ['paper', 'snow', 'jade', 'ink', 'midnight'];
+          if (palettes.indexOf(pref) < 0 && pref !== 'system') pref = 'system';
+          var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var dark = pref === 'ink' || pref === 'midnight' || (pref === 'system' && systemDark);
+          var palette = pref === 'system' ? (systemDark ? 'ink' : 'paper') : pref;
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+          document.documentElement.dataset.palette = palette;
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+          document.documentElement.dataset.palette = 'paper';
+        }
+      })();
+    </script>
+    <style>
+      :root {
+        --splash-bg: #f4eee3;
+        --splash-ink: #2d2b26;
+        --splash-muted: #8c8375;
+        --splash-accent: #4285f4;
+      }
+      html[data-palette='snow'] {
+        --splash-bg: #edf1f5;
+        --splash-ink: #1f2937;
+        --splash-muted: #7f8b9a;
+        --splash-accent: #2563eb;
+      }
+      html[data-palette='jade'] {
+        --splash-bg: #e9efe8;
+        --splash-ink: #25322a;
+        --splash-muted: #7e8f83;
+        --splash-accent: #4f7f68;
+      }
+      html[data-theme='dark'] {
+        --splash-bg: #191714;
+        --splash-ink: #e9e1d2;
+        --splash-muted: #8d8373;
+        --splash-accent: #8ab4f8;
+      }
+      html[data-palette='midnight'] {
+        --splash-bg: #121722;
+        --splash-ink: #e3e9f2;
+        --splash-muted: #74839a;
+        --splash-accent: #6ea8ff;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--splash-bg);
+        color: var(--splash-ink);
+        overflow: hidden;
+        font-family: 'Segoe UI Variable Text', 'Segoe UI', -apple-system, BlinkMacSystemFont,
+          'SF Pro Text', 'PingFang SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      #splash {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        background: var(--splash-bg);
+        z-index: 9999;
+        transition: opacity 180ms ease, visibility 180ms ease;
+      }
+      #splash.is-hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      #splash .mark {
+        width: 56px;
+        height: 56px;
+        animation: splash-in 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      }
+      #splash .word {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        animation: splash-in 420ms 60ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      }
+      #splash .tag {
+        font-size: 11.5px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--splash-muted);
+        animation: splash-in 420ms 110ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+      }
+      #splash .bar {
+        width: 96px;
+        height: 2px;
+        border-radius: 2px;
+        overflow: hidden;
+        background: color-mix(in srgb, var(--splash-muted) 22%, transparent);
+        margin-top: 6px;
+      }
+      #splash .bar::after {
+        content: '';
+        display: block;
+        width: 40%;
+        height: 100%;
+        border-radius: 2px;
+        background: var(--splash-accent);
+        animation: splash-bar 1.1s ease-in-out infinite;
+      }
+      @keyframes splash-in {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @keyframes splash-bar {
+        0% {
+          transform: translateX(-110%);
+        }
+        100% {
+          transform: translateX(280%);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #splash .mark,
+        #splash .word,
+        #splash .tag {
+          animation: none;
+        }
+        #splash .bar::after {
+          animation-duration: 2.4s;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="splash" aria-hidden="true">
+      <svg class="mark" viewBox="0 0 1024 1024" fill="none">
+        <defs>
+          <linearGradient id="splash-bg" x1="0" y1="0" x2="0.45" y2="1">
+            <stop offset="0" stop-color="#5B94F7" />
+            <stop offset="0.55" stop-color="#4A83EF" />
+            <stop offset="1" stop-color="#3E73E1" />
+          </linearGradient>
+        </defs>
+        <rect width="1024" height="1024" rx="200" fill="url(#splash-bg)" />
+        <path
+          d="M116 688V520C116 470 265 470 265 520V688M265 520C265 470 414 470 414 520V688"
+          stroke="#FFFFFF"
+          stroke-width="67"
+          stroke-linecap="butt"
+        />
+        <path d="M672 340h70v348h-70z" fill="#FFFFFF" />
+        <circle cx="580" cy="568" r="85" stroke="#FFFFFF" stroke-width="70" />
+        <circle cx="868" cy="582" r="96" fill="#FBBC05" />
+      </svg>
+      <div class="word">mdot</div>
+      <div class="tag">local-first markdown</div>
+      <div class="bar"></div>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

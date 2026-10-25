@@ -1,0 +1,99 @@
+name: build
+
+# Pushing a tag like v1.0.0 builds Windows + macOS installers and publishes them
+# as a GitHub Release. Pushes to main only verify that everything compiles.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build
+
+  build:
+    needs: check
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+            target: windows
+            bundles: nsis
+          - platform: macos-latest
+            target: macos
+            bundles: dmg
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - run: npm ci
+      - run: npm run tauri:build -- --bundles ${{ matrix.bundles }}
+
+      - name: Collect artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(node -p "require('./package.json').version")
+          mkdir -p dist-artifacts
+          if [ "${{ matrix.target }}" = "windows" ]; then
+            cp src-tauri/target/release/bundle/nsis/*-setup.exe \
+               "dist-artifacts/mdot-${version}-setup.exe"
+            cp src-tauri/target/release/mdot.exe \
+               "dist-artifacts/mdot-${version}-portable.exe"
+          else
+            for dmg in src-tauri/target/release/bundle/dmg/*.dmg; do
+              arch=$(basename "$dmg" | sed -E 's/.*_([a-z0-9_]+)\.dmg/\1/')
+              cp "$dmg" "dist-artifacts/mdot-${version}-${arch}.dmg"
+            done
+          fi
+          echo "mdot ${version} — ${{ matrix.target }} build from GitHub Actions." \
+            > dist-artifacts/README-${{ matrix.target }}.txt
+          (cd dist-artifacts && sha256sum mdot-* > SHA256SUMS-${{ matrix.target }}.txt)
+          ls -la dist-artifacts
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mdot-${{ matrix.target }}-${{ github.ref_name }}
+          path: dist-artifacts/*
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: mdot-*
+          merge-multiple: true
+          path: out
+      - name: Merge checksum files
+        run: cat out/*SHA256SUMS*.txt > out/SHA256SUMS.txt && rm -f out/*SHA256SUMS-*.txt
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            out/mdot-*
+            out/SHA256SUMS.txt
+          generate_release_notes: true
+          fail_on_unmatched_files: true

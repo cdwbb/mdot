@@ -1,0 +1,173 @@
+/* Warm paper refinements layered over the structural styles. */
+
+body {
+  background-color: var(--bg);
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--text) 2.2%, transparent) 0.6px,
+    transparent 0.6px
+  );
+  background-size: 5px 5px;
+}
+
+.titlebar {
+  padding-left: 14px;
+}
+
+html[data-platform='mac'] .titlebar {
+  padding-left: 80px;
+}
+
+.titlebar__brand-name {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text);
+}
+
+.titlebar__divider {
+  background: var(--border);
+  opacity: 0.9;
+}
+
+.titlebar__filename {
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.titlebar__right .icon-btn {
+  border-radius: 7px;
+  color: var(--text-muted);
+}
+
+.titlebar__right .icon-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.window-controls button {
+  color: var(--text-secondary);
+}
+
+.main {
+  background: var(--bg-editor);
+}
+
+.welcome {
+  background:
+    radial-gradient(
+      56% 44% at 24% 8%,
+      color-mix(in srgb, var(--accent) 5%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      40% 36% at 88% 10%,
+      color-mix(in srgb, var(--highlight) 7%, transparent),
+      transparent 72%
+    );
+}
+
+.welcome__inner {
+  width: min(640px, 100%);
+}
+
+.welcome__brand {
+  gap: 16px;
+  margin-bottom: 4px;
+}
+
+.welcome__logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-2);
+}
+
+.welcome__title {
+  font-family: var(--font-serif);
+  font-size: 33px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.welcome__subtitle {
+  font-size: 12px;
+  letter-spacing: 0.035em;
+}
+
+.welcome__tagline {
+  margin: 20px 0 28px;
+  max-width: 52ch;
+  font-family: var(--font-serif);
+  font-size: 15.5px;
+  line-height: 1.82;
+  color: var(--text-secondary);
+}
+
+.welcome__section-title {
+  color: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+}
+
+.welcome-card {
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--bg-elevated) 84%, var(--bg-sunken));
+  box-shadow: var(--shadow-1);
+}
+
+.welcome-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 36%, var(--border));
+  box-shadow: var(--shadow-2);
+}
+
+.welcome-card__icon {
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg-elevated));
+}
+
+.recent-row {
+  border-radius: var(--radius-sm);
+}
+
+.recent-row:hover {
+  background: var(--bg-hover);
+}
+
+.sidebar {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--bg-sunken) 92%, var(--bg-elevated)),
+      var(--bg-sunken)
+    );
+}
+
+.sidebar__foot {
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+}
+
+.statusbar {
+  background: var(--titlebar-bg);
+  border-top-color: var(--titlebar-border);
+  color: var(--text-muted);
+}
+
+.split__pane--preview {
+  background: var(--bg-editor);
+}
+
+.split__head {
+  background: color-mix(in srgb, var(--bg-sunken) 52%, var(--bg-editor));
+}
+
+.doc-title,
+.titlebar__doc {
+  color: var(--text-secondary);
+}
+
+.brand-mark,
+.titlebar__brand > svg {
+  filter: drop-shadow(0 1px 1px rgba(43, 32, 20, 0.14));
+}

@@ -1,0 +1,135 @@
+/* ==========================================================================
+   Print / PDF. Both modes print their rendered reading surface only.
+   ========================================================================== */
+
+@media print {
+  html,
+  html[data-theme='dark'] {
+    color-scheme: light;
+    --bg: #ffffff;
+    --bg-editor: #ffffff;
+    --bg-elevated: #ffffff;
+    --bg-sunken: #ffffff;
+    --text: #141a21;
+    --text-secondary: #3c4652;
+    --text-muted: #68717c;
+    --text-faint: #8a939d;
+    --border: #e2e2dc;
+    --border-strong: #d0d0c9;
+    --md-heading: #10161d;
+    --md-link: #1a5cc4;
+    --code-bg: #f5f5f1;
+    --code-border: #e6e6e0;
+    --code: #f5f5f1;
+    --quote-bar: #cfcfc8;
+    --md-table-head: #f4f4ef;
+    --md-inline-code-text: #a52f1c;
+    --selection: transparent;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  @page {
+    margin: 18mm 16mm;
+  }
+
+  .titlebar,
+  .statusbar,
+  .sidebar,
+  .toasts,
+  .banner,
+  .format-bar,
+  .split__head,
+  .split__pane--source,
+  .seamless-booting,
+  .drop-zone,
+  .overlay,
+  .dialog-backdrop,
+  .focus-exit,
+  .doc-skeleton {
+    display: none !important;
+  }
+
+  .app {
+    display: block !important;
+    height: auto !important;
+    grid-template-rows: none !important;
+  }
+
+  .workspace,
+  .main,
+  .editor-stage,
+  .split,
+  .split__pane,
+  .split__scroll,
+  .seamless-wrap,
+  .seamless-surface {
+    display: block !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    flex: none !important;
+    border: 0 !important;
+  }
+
+  .split__pane--preview {
+    border: 0 !important;
+  }
+
+  .split__preview-inner {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .seamless-surface .milkdown .ProseMirror {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .seamless-host {
+    opacity: 1 !important;
+  }
+
+  .md-body {
+    font-size: 11.5pt;
+    line-height: 1.72;
+    color: #141a21;
+  }
+
+  .md-body a {
+    color: inherit;
+    border-bottom: 0;
+  }
+
+  .md-body h1,
+  .md-body h2,
+  .md-body h3 {
+    break-after: avoid;
+  }
+
+  .md-body pre,
+  .md-body table,
+  .md-body blockquote,
+  .md-body img,
+  .md-body .code-block,
+  .md-body .mermaid-block {
+    break-inside: avoid;
+  }
+
+  .md-body .code-block__copy {
+    display: none !important;
+  }
+
+  .fm-card {
+    break-inside: avoid;
+  }
+
+  .md-body .heading-anchor {
+    display: none !important;
+  }
+}

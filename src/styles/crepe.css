@@ -1,0 +1,480 @@
+/* ==========================================================================
+   Seamless mode — Milkdown Crepe theme aligned with mdot tokens.
+
+   Crepe ships a frame theme driven by --crepe-* variables. We remap those
+   variables to mdot tokens and then correct the few typographic defaults
+   (very large headings, tight paragraphs) so both modes look identical.
+   ========================================================================== */
+
+.seamless-surface {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  position: relative;
+  background: var(--bg-editor);
+}
+
+.seamless-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: var(--bg-editor);
+}
+
+.seamless-host {
+  min-height: 100%;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.seamless-wrap.is-ready .seamless-host {
+  opacity: 1;
+}
+
+.seamless-booting {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-1);
+  font-size: 10.5px;
+  color: var(--text-muted);
+  pointer-events: none;
+  animation: fade-in 200ms ease;
+}
+
+/* Front matter card (seamless mode keeps it out of the ProseMirror doc) */
+.fm-card {
+  flex: 0 0 auto;
+  margin: 10px auto 0;
+  width: min(var(--content-width), calc(100% - 48px));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunken);
+  overflow: hidden;
+  user-select: none;
+}
+
+.fm-card__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 10.5px;
+  color: var(--text-muted);
+  text-align: left;
+}
+
+.fm-card__head:hover {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.fm-card__chevron {
+  transition: transform var(--dur-fast) ease;
+  color: var(--text-faint);
+}
+
+.fm-card.is-open .fm-card__chevron {
+  transform: rotate(90deg);
+}
+
+.fm-card__hint {
+  margin-left: auto;
+  font-size: 9.5px;
+  color: var(--text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fm-card__body {
+  margin: 0;
+  padding: 0 12px 10px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  max-height: 180px;
+  overflow: auto;
+  user-select: text;
+}
+
+/* Editor boot failure */
+.editor-error {
+  max-width: 460px;
+  margin: 80px auto;
+  padding: 24px;
+  border: 1px solid color-mix(in srgb, var(--danger) 30%, var(--border));
+  border-radius: var(--radius-md);
+  background: var(--danger-soft);
+  color: var(--text);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.editor-error svg {
+  color: var(--danger);
+}
+
+.editor-error strong {
+  font-size: 13px;
+}
+
+.editor-error p {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.editor-error__hint {
+  color: var(--text-muted) !important;
+}
+
+
+:is(.seamless-surface, .pane-seamless) .milkdown {
+  --crepe-color-background: transparent;
+  --crepe-color-on-background: var(--text);
+  --crepe-color-surface: var(--bg-elevated);
+  --crepe-color-surface-low: var(--bg-sunken);
+  --crepe-color-on-surface: var(--text);
+  --crepe-color-on-surface-variant: var(--text-secondary);
+  --crepe-color-outline: var(--border-strong);
+  --crepe-color-primary: var(--accent);
+  --crepe-color-secondary: var(--border);
+  --crepe-color-on-secondary: var(--text);
+  --crepe-color-inverse: var(--text);
+  --crepe-color-on-inverse: var(--bg);
+  --crepe-color-inline-code: var(--md-inline-code-text);
+  --crepe-color-error: var(--danger);
+  --crepe-color-hover: var(--bg-hover);
+  --crepe-color-selected: var(--selection);
+  --crepe-color-inline-area: var(--code-bg);
+
+  --crepe-base-font-size: var(--editor-font-size);
+  --crepe-font-title: var(--font-editor);
+  --crepe-font-default: var(--font-editor);
+  --crepe-font-code: var(--font-mono);
+  --crepe-shadow-1: var(--shadow-1);
+  --crepe-shadow-2: var(--shadow-2);
+
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-editor);
+  font-size: var(--editor-font-size);
+  line-height: var(--editor-line-height);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 34px 44px 45vh;
+  font-family: var(--font-editor);
+  font-size: var(--editor-font-size);
+  line-height: var(--editor-line-height);
+  letter-spacing: 0.002em;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  caret-color: var(--accent);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror:focus,
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror-focused {
+  outline: none;
+}
+
+/* ---- Block typography ---- */
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror h1,
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror h2,
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror h3,
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror h4,
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror h5,
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror h6 {
+  font-family: var(--font-editor);
+  font-weight: 650;
+  line-height: 1.32;
+  letter-spacing: -0.012em;
+  color: var(--md-heading);
+  padding: 0;
+  scroll-margin-top: 32px;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror h1 {
+  font-size: 1.92em;
+  margin: 0.5em 0 0.4em;
+  letter-spacing: -0.022em;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror h2 {
+  font-size: 1.48em;
+  margin: 1.35em 0 0.35em;
+  padding-bottom: 0.2em;
+  border-bottom: 1px solid var(--border);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror h3 {
+  font-size: 1.22em;
+  margin: 1.2em 0 0.3em;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror h4 {
+  font-size: 1.07em;
+  margin: 1.1em 0 0.3em;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror h5 {
+  font-size: 0.98em;
+  margin: 1em 0 0.3em;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror h6 {
+  font-size: 0.92em;
+  margin: 1em 0 0.3em;
+  color: var(--text-secondary);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror p {
+  font-size: 1em;
+  line-height: var(--editor-line-height);
+  padding: 0;
+  margin: 0.55em 0;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror > p:first-child,
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror > h1:first-child {
+  margin-top: 0;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror a {
+  color: var(--md-link);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--md-link) 32%, transparent);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror a:hover {
+  border-bottom-color: var(--md-link);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror strong {
+  font-weight: 650;
+  color: var(--md-heading);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror code {
+  font-family: var(--font-mono);
+  font-size: 0.87em;
+  color: var(--md-inline-code-text);
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: 4px;
+  padding: 0.1em 0.34em;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror blockquote {
+  margin: 1em 0;
+  padding: 0.1em 1.05em;
+  border-left: 3px solid var(--quote-bar);
+  background: color-mix(in srgb, var(--text) 2.4%, transparent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--text-secondary);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror blockquote::before {
+  display: none;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror hr {
+  border: 0;
+  height: 1px;
+  padding: 0;
+  margin: 2em 0;
+  background: var(--md-hr);
+  background-clip: border-box;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror img {
+  border-radius: var(--radius-sm);
+  max-width: 100%;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror ::selection {
+  background: var(--selection);
+}
+
+/* Lists */
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror ul,
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror ol {
+  padding-left: 1.5em;
+  margin: 0.4em 0;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror li {
+  line-height: var(--editor-line-height);
+  margin: 0.2em 0;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror li::marker {
+  color: var(--text-muted);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror li > p {
+  margin: 0.12em 0;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror li p:first-child {
+  margin-top: 0;
+}
+
+/* Task list checkboxes (Crepe list-item feature uses button/span) */
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-list-item-block li .label-wrapper .label {
+  color: var(--text);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-list-item-block li .label-wrapper .label.checked {
+  color: var(--text-faint);
+  text-decoration: line-through;
+}
+
+/* Tables */
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  font-size: 0.94em;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror th,
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror td {
+  border: 1px solid var(--border);
+  padding: 0.4em 0.7em;
+  vertical-align: top;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror th {
+  background: var(--md-table-head);
+  font-weight: 600;
+  text-align: left;
+}
+
+/* Code blocks: Crepe renders a CodeMirror instance inside a wrapper. */
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-code-block {
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: var(--radius-md);
+  margin: 1.1em 0;
+  overflow: hidden;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-code-block .cm-editor {
+  background: transparent;
+  font-size: calc(var(--editor-font-size) * 0.84);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-code-block .cm-gutters {
+  background: transparent;
+  color: var(--text-faint);
+  border: 0;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-code-block .cm-activeLine {
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-code-block .cm-scroller {
+  font-family: var(--font-mono);
+  line-height: 1.65;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-code-block .cm-content {
+  padding: 8px 4px;
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-code-block .language-picker,
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-code-block .tools {
+  background: transparent;
+}
+
+/* Block handle / top bar */
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-block-handle {
+  color: var(--text-faint);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-block-handle .operation-item:hover {
+  background: var(--bg-hover);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-top-bar {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2);
+  color: var(--text);
+}
+
+/* Slash menu + toolbar popups */
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-slash-menu,
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-toolbar,
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-link-preview,
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-link-edit,
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-latex-inline-edit {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop);
+  color: var(--text);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-slash-menu .menu-groups .menu-group .menu-item:hover,
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-toolbar .toolbar-item:hover,
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-slash-menu .menu-groups .menu-group .menu-item.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-toolbar .toolbar-item svg {
+  color: var(--text-secondary);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-toolbar .toolbar-item.active {
+  background: var(--accent-soft);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-toolbar .toolbar-item.active svg {
+  color: var(--accent);
+}
+
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-toolbar .divider {
+  background: var(--border);
+}
+
+/* Placeholder */
+:is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror .crepe-placeholder::before {
+  color: var(--text-faint);
+}
+
+/* Latex block */
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-latex-node {
+  background: var(--code-bg);
+  border-radius: var(--radius-sm);
+}
+
+@media (max-width: 900px) {
+  :is(.seamless-surface, .pane-seamless) .milkdown .ProseMirror {
+    padding: 24px 22px 45vh;
+  }
+}
