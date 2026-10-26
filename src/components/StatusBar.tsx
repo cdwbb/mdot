@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Columns2, Focus, LayoutGrid, PenLine, Timer, Type, Moon, Sun, Monitor } from 'lucide-react';
+import { Columns2, Focus, LayoutGrid, Minus, PenLine, Plus, Timer, Type, Moon, Sun, Monitor } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { countStats } from '../utils/markdown';
 import { toggleMode } from '../editor/modeSwitch';
@@ -18,7 +18,13 @@ export default function StatusBar() {
   const typewriter = useAppStore((s) => s.settings.typewriter);
   const autoSave = useAppStore((s) => s.settings.autoSave);
   const theme = useAppStore((s) => s.settings.theme);
+  const zoom = useAppStore((s) => s.settings.zoom);
   const saveState = useAppStore((s) => s.saveState);
+
+  const setZoom = (next: number) => {
+    const clamped = Math.min(200, Math.max(50, Math.round(next / 10) * 10));
+    useAppStore.getState().patchSettings({ zoom: clamped });
+  };
 
   const stats = useMemo(() => countStats(content), [content]);
   const activePaneState = activePane === 'a' ? paneA : paneB;
@@ -110,6 +116,30 @@ export default function StatusBar() {
         <span className="statusbar__item" title="Markdown">
           Markdown
         </span>
+        <span className="statusbar__sep" />
+        <button
+          className="statusbar__item statusbar__zoom"
+          title="缩小 (-10%)"
+          onClick={() => setZoom(zoom - 10)}
+          disabled={zoom <= 50}
+        >
+          <Minus size={11} />
+        </button>
+        <button
+          className="statusbar__item statusbar__zoom-value"
+          title="恢复 100%"
+          onClick={() => setZoom(100)}
+        >
+          {zoom}%
+        </button>
+        <button
+          className="statusbar__item statusbar__zoom"
+          title="放大 (+10%)"
+          onClick={() => setZoom(zoom + 10)}
+          disabled={zoom >= 200}
+        >
+          <Plus size={11} />
+        </button>
       </div>
     </footer>
   );

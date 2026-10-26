@@ -2,6 +2,20 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.0.3] - 2026-10-26
+
+### Added
+
+- 状态栏右下角新增界面缩放控件：`−` / 百分比 / `+`，范围 50%–200%，点击百分比恢复 100%，设置会持久保存
+
+### Changed
+
+- 欢迎页精简为 Logo、一句简介和文字入口（新建 / 打开），移除示例区、快捷键提示与卡片式入口；仅在开启「显示最近文件」时列出最近文档
+
+### Fixed
+
+- 点击表格时页面上下跳动：Milkdown 的虚拟光标会作为文档首个兄弟节点插入，打断首块的外边距规则，选择表格单元格时文档高度变化 16px；现改用原生光标
+
 ## [1.0.2] - 2026-10-26
 
 ### Added
@@ -57,3 +71,4 @@
 [1.0.0]: https://github.com/cdwbb/mdot/releases/tag/v1.0.0
 [1.0.1]: https://github.com/cdwbb/mdot/releases/tag/v1.0.1
 [1.0.2]: https://github.com/cdwbb/mdot/releases/tag/v1.0.2
+[1.0.3]: https://github.com/cdwbb/mdot/releases/tag/v1.0.3

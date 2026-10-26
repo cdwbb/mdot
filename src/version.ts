@@ -4,7 +4,7 @@ import { isDesktop } from './services/backend';
 // Bump this together with package.json / tauri.conf.json / Cargo.toml for the browser preview.
 // The desktop build reads its version from the binary itself, so shipped apps always agree
 // with the installer they came from.
-const FALLBACK_VERSION = '1.0.2';
+const FALLBACK_VERSION = '1.0.3';
 
 export let APP_VERSION = FALLBACK_VERSION;
 

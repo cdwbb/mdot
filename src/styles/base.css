@@ -89,6 +89,15 @@ a {
   overflow: hidden;
 }
 
+/* Browser-preview zoom: the desktop app uses the native webview zoom. */
+html.ui-zoomed #root {
+  zoom: var(--ui-zoom);
+}
+
+html.ui-zoomed .app {
+  height: 100%;
+}
+
 .workspace {
   display: flex;
   min-height: 0;
@@ -553,6 +562,22 @@ select.field {
 button.statusbar__item:hover {
   background: var(--bg-hover);
   color: var(--text-secondary);
+}
+
+button.statusbar__item:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.statusbar__zoom {
+  padding: 0 4px;
+}
+
+.statusbar__zoom-value {
+  min-width: 36px;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
 }
 
 .statusbar__item.is-accent {

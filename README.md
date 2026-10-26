@@ -173,8 +173,8 @@ Tauri Rust 后端
 # 1. 同步版本号：package.json / src-tauri/tauri.conf.json / src-tauri/Cargo.toml
 #    （src/version.ts 只在浏览器预览里兜底，桌面版从二进制读取版本）
 # 2. 更新 CHANGELOG.md
-git commit -am "chore: release v1.0.2"
-git tag v1.0.2
+git commit -am "chore: release v1.0.3"
+git tag v1.0.3
 git push origin main --tags
 ```
 

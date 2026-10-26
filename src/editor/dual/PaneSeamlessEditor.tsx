@@ -165,6 +165,9 @@ export const PaneSeamlessEditor = forwardRef<PaneSeamlessHandle, Props>(
           [Crepe.Feature.AI]: false,
         },
         featureConfigs: {
+          // See CrepeEditor: the virtual caret injects a sibling before the
+          // first block and makes selections shift the document vertically.
+          [Crepe.Feature.Cursor]: { virtual: false },
           [Crepe.Feature.Placeholder]: {
             text: '开始书写…',
             mode: 'block',

@@ -114,6 +114,10 @@ export default function CrepeEditor() {
           [Crepe.Feature.AI]: false,
         },
         featureConfigs: {
+          // The virtual caret renders as a top-level sibling before the first
+          // block, which breaks `:first-child` margins and shifts the document
+          // vertically when a table cell is selected.
+          [Crepe.Feature.Cursor]: { virtual: false },
           [Crepe.Feature.Placeholder]: {
             text: '输入 / 唤起命令，或直接开始写作…',
             mode: 'block',

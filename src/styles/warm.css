@@ -68,12 +68,11 @@ html[data-platform='mac'] .titlebar {
 }
 
 .welcome__inner {
-  width: min(640px, 100%);
+  width: min(480px, 100%);
 }
 
 .welcome__brand {
   gap: 16px;
-  margin-bottom: 4px;
 }
 
 .welcome__logo {
@@ -90,16 +89,10 @@ html[data-platform='mac'] .titlebar {
   letter-spacing: -0.025em;
 }
 
-.welcome__subtitle {
-  font-size: 12px;
-  letter-spacing: 0.035em;
-}
-
-.welcome__tagline {
-  margin: 20px 0 28px;
+.welcome__intro {
   font-family: var(--font-serif);
-  font-size: 15.5px;
-  line-height: 1.82;
+  font-size: 15px;
+  line-height: 1.8;
   color: var(--text-secondary);
 }
 
@@ -108,21 +101,6 @@ html[data-platform='mac'] .titlebar {
   font-family: var(--font-ui);
   font-size: 10.5px;
   letter-spacing: 0.08em;
-}
-
-.welcome-card {
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--bg-elevated) 84%, var(--bg-sunken));
-  box-shadow: var(--shadow-1);
-}
-
-.welcome-card:hover {
-  border-color: color-mix(in srgb, var(--accent) 36%, var(--border));
-  box-shadow: var(--shadow-2);
-}
-
-.welcome-card__icon {
-  background: color-mix(in srgb, var(--accent) 10%, var(--bg-elevated));
 }
 
 .recent-row {

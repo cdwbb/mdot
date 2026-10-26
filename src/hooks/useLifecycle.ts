@@ -68,6 +68,7 @@ export function useLifecycle(theme: ResolvedTheme): void {
         merged.settingsVersion = SETTINGS_VERSION;
         merged.fontSize = clamp(merged.fontSize, 13, 22);
         merged.contentWidth = clamp(merged.contentWidth, 560, 980);
+        merged.zoom = Math.round(clamp(merged.zoom ?? 100, 50, 200) / 10) * 10;
         if (![800, 10000, 30000, 60000, 120000, 300000].includes(merged.autoSaveDelay)) {
           merged.autoSaveDelay = 800;
         }
@@ -120,6 +121,19 @@ export function useLifecycle(theme: ResolvedTheme): void {
     root.dataset.platform = detectPlatform();
     root.style.setProperty('--editor-font-size', `${settings.fontSize}px`);
     root.style.setProperty('--content-width', `${settings.contentWidth}px`);
+    const scale = settings.zoom / 100;
+    if (isDesktop) {
+      void import('@tauri-apps/api/webview')
+        .then(({ getCurrentWebview }) => getCurrentWebview().setZoom(scale))
+        .catch(() => {
+          /* older webview without zoom support */
+        });
+    } else {
+      // Web preview fallback; `#root` still fills the viewport at any scale.
+      root.classList.toggle('ui-zoomed', scale !== 1);
+      if (scale === 1) root.style.removeProperty('--ui-zoom');
+      else root.style.setProperty('--ui-zoom', String(scale));
+    }
     if (!useAppStore.getState().booted) return;
     const timer = setTimeout(() => {
       void backend.saveSettings(settings);

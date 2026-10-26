@@ -14,6 +14,8 @@ export interface Settings {
   fontFamily: 'sans' | 'serif' | 'mono';
   fontSize: number;
   contentWidth: number;
+  /** Interface zoom in percent (50–200). */
+  zoom: number;
   autoSave: boolean;
   /** Idle time before autosave, in milliseconds. */
   autoSaveDelay: number;

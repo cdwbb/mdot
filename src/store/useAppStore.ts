@@ -27,6 +27,7 @@ export const DEFAULT_SETTINGS: Settings = {
   fontFamily: 'serif',
   fontSize: 17,
   contentWidth: 720,
+  zoom: 100,
   autoSave: false,
   autoSaveDelay: 800,
   defaultMode: 'seamless',
