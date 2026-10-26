@@ -1,7 +1,7 @@
+import { FilePlus2, FolderOpen, FolderTree } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { isDesktop } from '../services/backend';
 import { newDocument, openFileDialog, openPath, openWorkspaceDialog } from '../app/actions';
-import { APP_VERSION } from '../version';
 import Logo from './Logo';
 
 function timeAgo(ts: number): string {
@@ -31,29 +31,30 @@ export default function WelcomeScreen() {
           本地优先的 Markdown 写作台。文字只留在你的电脑上，输入即渲染。
         </p>
 
-        <div className="welcome__links">
-          <button className="welcome-link" onClick={newDocument}>
-            新建文档
+        <div className="welcome__actions">
+          <button className="welcome-card" onClick={newDocument}>
+            <span className="welcome-card__icon">
+              <FilePlus2 size={15} />
+            </span>
+            <span className="welcome-card__label">新建文档</span>
+            <span className="welcome-card__hint">从空白开始，Ctrl/Cmd + N</span>
           </button>
-          <span className="welcome__dot" aria-hidden="true">
-            ·
-          </span>
-          <button className="welcome-link" onClick={() => void openFileDialog()}>
-            打开文件
+          <button className="welcome-card" onClick={() => void openFileDialog()}>
+            <span className="welcome-card__icon">
+              <FolderOpen size={15} />
+            </span>
+            <span className="welcome-card__label">打开文件</span>
+            <span className="welcome-card__hint">.md / .markdown / .txt</span>
           </button>
-          {isDesktop && (
-            <>
-              <span className="welcome__dot" aria-hidden="true">
-                ·
-              </span>
-              <button
-                className="welcome-link"
-                onClick={() => void openWorkspaceDialog()}
-              >
-                打开文件夹
-              </button>
-            </>
-          )}
+          <button className="welcome-card" onClick={() => void openWorkspaceDialog()}>
+            <span className="welcome-card__icon">
+              <FolderTree size={15} />
+            </span>
+            <span className="welcome-card__label">打开文件夹</span>
+            <span className="welcome-card__hint">
+              {isDesktop ? '整个目录变成文件树' : '需要桌面版'}
+            </span>
+          </button>
         </div>
 
         {showRecent && recent.length > 0 && (
@@ -75,10 +76,6 @@ export default function WelcomeScreen() {
             ))}
           </section>
         )}
-
-        <div className="welcome__meta">
-          {isDesktop ? `桌面版 v${APP_VERSION}` : `浏览器预览 · v${APP_VERSION}`}
-        </div>
       </div>
     </div>
   );

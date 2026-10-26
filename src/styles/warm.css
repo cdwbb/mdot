@@ -68,7 +68,7 @@ html[data-platform='mac'] .titlebar {
 }
 
 .welcome__inner {
-  width: min(480px, 100%);
+  width: min(640px, 100%);
 }
 
 .welcome__brand {
@@ -94,6 +94,21 @@ html[data-platform='mac'] .titlebar {
   font-size: 15px;
   line-height: 1.8;
   color: var(--text-secondary);
+}
+
+.welcome-card {
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--bg-elevated) 84%, var(--bg-sunken));
+  box-shadow: var(--shadow-1);
+}
+
+.welcome-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 36%, var(--border));
+  box-shadow: var(--shadow-2);
+}
+
+.welcome-card__icon {
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg-elevated));
 }
 
 .welcome__section-title {

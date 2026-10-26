@@ -59,15 +59,17 @@ export default function StatusBar() {
           {mode === 'seamless' ? '无缝模式' : mode === 'split' ? '双栏模式' : '双文档'}
         </button>
         <span className="statusbar__sep" />
-        <span className="statusbar__item" title="字数（中文按字、西文按词）">
-          {stats.words.toLocaleString('zh-CN')} 字
-        </span>
-        <span className="statusbar__item" title="字符数（不含空白）">
-          {stats.chars.toLocaleString('zh-CN')} 字符
-        </span>
-        <span className="statusbar__item" title="预计阅读时间">
-          <Timer size={10} />
-          {stats.readingMinutes} 分钟
+        <span className="statusbar__stats">
+          <span className="statusbar__item" title="字数（中文按字、西文按词）">
+            {stats.words.toLocaleString('zh-CN')} 字
+          </span>
+          <span className="statusbar__item" title="字符数（不含空白）">
+            {stats.chars.toLocaleString('zh-CN')} 字符
+          </span>
+          <span className="statusbar__item" title="预计阅读时间">
+            <Timer size={10} />
+            {stats.readingMinutes} 分钟
+          </span>
         </span>
         {showCursor && (
           <span className="statusbar__item" title="光标位置（行 / 列）">
@@ -107,11 +109,13 @@ export default function StatusBar() {
         >
           <ThemeIcon size={11} />
         </button>
-        <span className="statusbar__item" title="编码">
-          UTF-8
-        </span>
-        <span className="statusbar__item" title="Markdown">
-          Markdown
+        <span className="statusbar__meta">
+          <span className="statusbar__item" title="编码">
+            UTF-8
+          </span>
+          <span className="statusbar__item" title="Markdown">
+            Markdown
+          </span>
         </span>
         <span className="statusbar__sep" />
         <button
@@ -124,7 +128,7 @@ export default function StatusBar() {
         </button>
         <button
           className="statusbar__item statusbar__zoom-value"
-          title="恢复 100%"
+          title="恢复 100%（也可用 Ctrl + 滚轮缩放正文）"
           onClick={() => setZoom(100)}
         >
           {zoom}%

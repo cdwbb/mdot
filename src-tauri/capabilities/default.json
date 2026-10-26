@@ -13,7 +13,6 @@
     "core:window:allow-close",
     "core:window:allow-destroy",
     "core:window:allow-is-maximized",
-    "core:webview:allow-set-webview-zoom",
     "dialog:default",
     "store:default"
   ]

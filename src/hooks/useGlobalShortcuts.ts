@@ -12,7 +12,8 @@ import {
 } from '../app/actions';
 import { toggleMode } from '../editor/modeSwitch';
 
-/** Global keyboard map. Editor-local shortcuts (Ctrl+F/B/I) stay inside the editor. */
+/** Global input map: keyboard shortcuts and Ctrl/Cmd + wheel document zoom.
+    Editor-local shortcuts (Ctrl+F/B/I) stay inside the editor. */
 export function useGlobalShortcuts(): void {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -123,5 +124,26 @@ export function useGlobalShortcuts(): void {
 
     window.addEventListener('keydown', onKeyDown, { capture: true });
     return () => window.removeEventListener('keydown', onKeyDown, { capture: true });
+  }, []);
+
+  /** Ctrl/Cmd + wheel zooms the document. Trackpad pinch arrives as many tiny
+      deltas, so the steps accumulate before the zoom actually moves. */
+  useEffect(() => {
+    let carry = 0;
+    const onWheel = (event: WheelEvent) => {
+      if (!(event.ctrlKey || event.metaKey)) return;
+      event.preventDefault();
+      carry += event.deltaY * (event.deltaMode === 1 ? 33 : 1);
+      if (Math.abs(carry) < 60) return;
+      const step = carry > 0 ? -10 : 10;
+      carry = 0;
+      const state = useAppStore.getState();
+      const current = state.settings.zoom;
+      const next = Math.min(200, Math.max(50, Math.round((current + step) / 10) * 10));
+      if (next !== current) state.patchSettings({ zoom: next });
+    };
+
+    window.addEventListener('wheel', onWheel, { capture: true, passive: false });
+    return () => window.removeEventListener('wheel', onWheel, { capture: true });
   }, []);
 }

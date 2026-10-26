@@ -291,7 +291,9 @@
   inset: 0 -3px;
 }
 
-@media (max-width: 900px) {
+/* Below this width the two panes cannot both stay readable, so the preview
+   yields and the source keeps the full window. */
+@media (max-width: 640px) {
   .split__pane--preview {
     display: none;
   }

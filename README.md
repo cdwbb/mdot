@@ -107,6 +107,8 @@ shasum -a 256 mdot-1.0.0-aarch64.dmg
 | 专注模式 | `Ctrl Shift F` | 显示/隐藏侧栏 | `Ctrl Shift B` |
 | 打字机模式 | `Ctrl Shift T` | 设置 | `Ctrl ,` |
 | 关闭对话框 / 退出专注 | `Esc` | 编辑器内搜索、加粗等 | `Ctrl F` / `Ctrl B` / `Ctrl I` |
+| 标题 1–6 / 段落（源码视图） | `Ctrl 1`…`Ctrl 6` / `Ctrl Shift 0` | 提升 / 降低标题级别 | `Ctrl +` / `Ctrl -` |
+| 正文缩放 | `Ctrl + 鼠标滚轮` | 缩放控件 / 恢复 100% | 状态栏右下角 `− 100% +` |
 
 ---
 

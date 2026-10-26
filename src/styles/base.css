@@ -89,13 +89,15 @@ a {
   overflow: hidden;
 }
 
-/* Browser-preview zoom: the desktop app uses the native webview zoom. */
-html.ui-zoomed #root {
-  zoom: var(--ui-zoom);
-}
-
-html.ui-zoomed .app {
-  height: 100%;
+/* Zoom scales the document surfaces only. The title bar, tab bar, sidebar,
+   status bar and editor toolbars keep their own size, so the shell never
+   reflows and no chrome drifts out of the window when writing gets bigger. */
+.seamless-host,
+.pane-seamless__host,
+.pane-source__host,
+.split__scroll > .cm-editor,
+.split__preview-inner {
+  zoom: var(--ui-zoom, 1);
 }
 
 .workspace {
@@ -534,6 +536,27 @@ select.field {
   user-select: none;
   z-index: 20;
   grid-row: 3;
+  overflow: hidden;
+}
+
+/* Items the bar drops first when the window gets narrow. Content zoom does not
+   shrink the viewport, so only real widths hit these — thresholds are sized for
+   a long document, where the counts and the cursor readout are at their widest. */
+.statusbar__stats,
+.statusbar__meta {
+  display: contents;
+}
+
+@media (max-width: 880px) {
+  .statusbar__stats {
+    display: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .statusbar__meta {
+    display: none;
+  }
 }
 
 .statusbar__group {

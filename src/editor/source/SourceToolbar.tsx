@@ -170,7 +170,7 @@ export default function SourceToolbar({ viewRef, label, trailing }: Props) {
           <MenuItem
             key={level}
             label={`标题 ${level}`}
-            keys={level === 1 ? 'Ctrl+1' : undefined}
+            keys={`Ctrl+${level}`}
             onClick={action((view) => setHeading(view, level))}
           />
         ))}
