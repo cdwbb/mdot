@@ -64,6 +64,15 @@ shasum -a 256 mdot-1.0.0-aarch64.dmg
 > **首次运行提示**：安装包未做代码签名，Windows SmartScreen 可能弹出"未知发布者"，点"仍要运行"即可；macOS 需在「系统设置 → 隐私与安全性」里允许打开。
 > **依赖**：Windows 需要 [Microsoft Edge WebView2 Runtime](https://learn.microsoft.com/microsoft-edge/webview2/)，Win 10/11 通常已内置。
 
+### 平台支持
+
+| 平台 | 状态 | 说明 |
+|---|---|---|
+| Windows 10/11 x64 | ✅ 支持 | 主要开发与验证平台 |
+| macOS 12+ Apple Silicon | ⚠️ 已构建，未真机验证 | 窗口/快捷键/字体已按 macOS 适配；无签名，首次需手动放行 |
+| macOS Intel (x86_64) | ❌ 暂无 | CI 仅构建 arm64 包；需要时可加 `macos-13` 任务 |
+| Linux | ❌ 暂不支持 | 源码无 Windows 专属逻辑，但未做打包与窗口适配，欢迎 PR |
+
 ---
 
 ## ✨ 特性一览
@@ -187,6 +196,7 @@ git push origin main --tags
 诚实清单，欢迎提 Issue 或 PR 改进：
 
 - **未做代码签名**：Windows SmartScreen 与 macOS _gatekeeper_ 会拦一次；自动更新尚未落地。
+- **平台覆盖有限**：Windows 为主要验证平台；macOS 仅 Apple Silicon 且尚无真机验证；Linux 未适配。
 - **无 docx 导出、无 Vim 键位**。
 - **Milkdown 往返保真**：无缝模式保存会重新序列化 Markdown，表格对齐与少数转义可能被规范化；尚无往返保真测试。
 - **编码**：读取兼容 UTF-8 / UTF-16 / GBK，但保存统一写回 UTF-8，不保留原编码。
