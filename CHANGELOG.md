@@ -2,7 +2,7 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased]
+## [1.0.5] - 2026-10-26
 
 ### Added
 
@@ -105,3 +105,4 @@
 [1.0.2]: https://github.com/cdwbb/mdot/releases/tag/v1.0.2
 [1.0.3]: https://github.com/cdwbb/mdot/releases/tag/v1.0.3
 [1.0.4]: https://github.com/cdwbb/mdot/releases/tag/v1.0.4
+[1.0.5]: https://github.com/cdwbb/mdot/releases/tag/v1.0.5
