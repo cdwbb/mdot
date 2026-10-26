@@ -5,6 +5,7 @@ import {
   Monitor,
   Moon,
   PanelLeft,
+  Save,
   Settings as SettingsIcon,
   Square,
   Sun,
@@ -12,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { isDesktop } from '../services/backend';
-import { exportHtml, showWelcome as goHome } from '../app/actions';
+import { exportHtml, saveDocument, showWelcome as goHome } from '../app/actions';
 import Logo from './Logo';
 import { THEME_LABEL, nextTheme } from '../theme';
 
@@ -28,6 +29,7 @@ function windowAction(action: 'minimize' | 'toggleMaximize' | 'close'): void {
 
 export default function TitleBar() {
   const doc = useAppStore((s) => s.doc);
+  const activeTabId = useAppStore((s) => s.activeTabId);
   const saveState = useAppStore((s) => s.saveState);
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
   const theme = useAppStore((s) => s.settings.theme);
@@ -86,6 +88,18 @@ export default function TitleBar() {
           onClick={() => useAppStore.getState().setSidebarOpen(!sidebarOpen)}
         >
           <PanelLeft size={15} />
+        </button>
+        <button
+          className={`icon-btn titlebar__save ${dirty ? 'is-dirty' : ''}`}
+          title="保存 (Ctrl/Cmd + S)"
+          onClick={() => void saveDocument()}
+          disabled={showWelcome || !activeTabId}
+        >
+          {saveState === 'saving' ? (
+            <Loader2 size={15} className="spin" />
+          ) : (
+            <Save size={15} />
+          )}
         </button>
         <button
           className="icon-btn"

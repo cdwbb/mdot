@@ -414,6 +414,18 @@
   color: var(--text-faint);
 }
 
+/* The hidden handle is absolutely positioned without offsets, so it sits at the
+   end of the content and silently adds scrollable overflow. Pin it to the start. */
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-block-handle[data-show='false'] {
+  top: 0 !important;
+  left: 0 !important;
+}
+
+/* The drag grip has no handlers yet; hide it until it does something. */
+:is(.seamless-surface, .pane-seamless) .milkdown .milkdown-block-handle > .operation-item:last-child {
+  display: none;
+}
+
 :is(.seamless-surface, .pane-seamless) .milkdown .milkdown-block-handle .operation-item:hover {
   background: var(--bg-hover);
 }

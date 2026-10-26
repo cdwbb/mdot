@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "mdot",
   "mainBinaryName": "mdot",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "identifier": "com.mdot.editor",
   "build": {
     "beforeDevCommand": "npm run dev",

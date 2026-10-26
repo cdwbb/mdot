@@ -1,9 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { confirm as nativeConfirm } from '@tauri-apps/plugin-dialog';
-import { useAppStore, DEFAULT_SETTINGS } from '../store/useAppStore';
+import { useAppStore, DEFAULT_SETTINGS, SETTINGS_VERSION } from '../store/useAppStore';
 import { backend, isDesktop } from '../services/backend';
 import { detectPlatform } from '../services/platform';
-import { openPath, refreshTree, restoreWorkspace, saveAllDirty } from '../app/actions';
+import {
+  openPath,
+  refreshTree,
+  restoreWorkspace,
+  saveAllDirty,
+  wasWrittenRecently,
+} from '../app/actions';
 import { debounce } from '../utils/debounce';
 import type { ResolvedTheme } from './useResolvedTheme';
 import { normalizeThemePref, resolvePalette } from '../theme';
@@ -54,6 +60,12 @@ export function useLifecycle(theme: ResolvedTheme): void {
       let merged = DEFAULT_SETTINGS;
       if (stored) {
         merged = { ...DEFAULT_SETTINGS, ...stored };
+        if ((stored.settingsVersion ?? 1) < SETTINGS_VERSION) {
+          merged.autoSave = false;
+          merged.rememberSession = false;
+          merged.showRecent = false;
+        }
+        merged.settingsVersion = SETTINGS_VERSION;
         merged.fontSize = clamp(merged.fontSize, 13, 22);
         merged.contentWidth = clamp(merged.contentWidth, 560, 980);
         if (![800, 10000, 30000, 60000, 120000, 300000].includes(merged.autoSaveDelay)) {
@@ -155,38 +167,52 @@ export function useLifecycle(theme: ResolvedTheme): void {
 
   useEffect(() => {
     if (!isDesktop) return;
+
+    const syncFromDisk = (path: string, onMissing?: () => void) => {
+      void backend
+        .openPath(path)
+        .then((file) => {
+          const latest = useAppStore.getState();
+          if (latest.doc.path !== path) return;
+          if (file.content === latest.doc.content) return;
+          if (latest.doc.content !== latest.doc.savedContent) {
+            latest.setConflict({ path, at: Date.now() });
+            return;
+          }
+          latest.setDoc({
+            path: file.path,
+            name: file.name,
+            content: file.content,
+            savedContent: file.content,
+            mtime: file.mtime,
+          });
+          latest.toast('文件已在外部更新，已重新加载', 'info');
+        })
+        .catch(() => onMissing?.());
+    };
+
     const off = backend.onFsChange((event) => {
       const state = useAppStore.getState();
       const current = state.doc.path;
       const eventPath = normalize(event.path);
 
       if (current && eventPath === normalize(current)) {
+        if (wasWrittenRecently(eventPath)) return;
         if (state.lastSavedAt && Date.now() - state.lastSavedAt < 1800) return;
         if (event.kind === 'remove') {
-          state.toast('文件已从磁盘移除，编辑器中的内容仍保留', 'error');
+          // Atomic saves briefly remove the target path; only report a real loss.
+          syncFromDisk(current, () => {
+            const latest = useAppStore.getState();
+            if (latest.doc.path !== current) return;
+            latest.toast('文件已从磁盘移除，编辑器中的内容仍保留', 'error');
+          });
           return;
         }
-        const dirty = state.doc.content !== state.doc.savedContent;
-        if (dirty) {
+        if (state.doc.content !== state.doc.savedContent) {
           state.setConflict({ path: current, at: Date.now() });
           return;
         }
-        void backend
-          .openPath(current)
-          .then((file) => {
-            const latest = useAppStore.getState();
-            if (latest.doc.path !== current) return;
-            if (file.content === latest.doc.content) return;
-            latest.setDoc({
-              path: file.path,
-              name: file.name,
-              content: file.content,
-              savedContent: file.content,
-              mtime: file.mtime,
-            });
-            latest.toast('文件已在外部更新，已重新加载', 'info');
-          })
-          .catch(() => undefined);
+        syncFromDisk(current);
         return;
       }
 

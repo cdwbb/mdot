@@ -8,6 +8,8 @@ export type SidebarView = 'files' | 'outline';
 export type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 
 export interface Settings {
+  /** Bumped when defaults change in a way that must be re-applied once. */
+  settingsVersion?: number;
   theme: ThemePref;
   fontFamily: 'sans' | 'serif' | 'mono';
   fontSize: number;

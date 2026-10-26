@@ -7,6 +7,27 @@ import type { OpenedFile, PaneKey, TabState } from '../types';
 
 const savingIds = new Set<string>();
 
+const normalizePath = (path: string): string => path.replace(/\\/g, '/').toLowerCase();
+
+/** Saves rewrite files atomically (temp + rename), so the watcher reports
+ * remove/create for paths we just wrote. Ignore those echoes for a short while. */
+const writeGuardMs = 4000;
+const recentWrites = new Map<string, number>();
+
+export function markWrite(path: string): void {
+  const now = Date.now();
+  recentWrites.set(normalizePath(path), now);
+  if (recentWrites.size <= 32) return;
+  for (const [key, at] of recentWrites) {
+    if (now - at > writeGuardMs) recentWrites.delete(key);
+  }
+}
+
+export function wasWrittenRecently(path: string): boolean {
+  const at = recentWrites.get(normalizePath(path));
+  return at !== undefined && Date.now() - at < writeGuardMs;
+}
+
 const tabDirty = (tab: TabState | null | undefined): boolean =>
   !!tab && tab.content !== tab.savedContent;
 
@@ -171,6 +192,7 @@ export async function saveTab(tabId: string, forceSaveAs = false): Promise<boole
   try {
     const target = forceSaveAs ? null : tab.path;
     const content = state.activeTabId === tabId ? state.doc.content : tab.content;
+    if (target) markWrite(target);
     const saved = await backend.saveText(target, content, suggestedName(tab));
     if (!saved) {
       if (state.activeTabId === tabId) {
@@ -178,6 +200,7 @@ export async function saveTab(tabId: string, forceSaveAs = false): Promise<boole
       }
       return false;
     }
+    if (saved.path) markWrite(saved.path);
     state.updateTabSaved(tabId, saved, content);
     if (state.activeTabId === tabId) state.markSaved(Date.now());
     if (saved.path) {

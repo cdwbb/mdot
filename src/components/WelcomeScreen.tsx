@@ -35,7 +35,7 @@ export default function WelcomeScreen() {
         <p className="welcome__tagline">
           一个安静的写作工作台。文字留在你的电脑上，输入即渲染；
           需要校对长文时切到双栏，需要并排处理两份文档时切到双文档。
-          标签页与退出前的阅读位置都会自动恢复。
+          在设置里开启「记住打开的文档」，下次启动会回到退出前的阅读位置。
         </p>
 
         <div className="welcome__actions">

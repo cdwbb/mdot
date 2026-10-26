@@ -19,20 +19,23 @@ import type {
   WorkspaceInfo,
 } from '../types';
 
+export const SETTINGS_VERSION = 2;
+
 export const DEFAULT_SETTINGS: Settings = {
+  settingsVersion: SETTINGS_VERSION,
   theme: 'system',
   fontFamily: 'serif',
   fontSize: 17,
   contentWidth: 720,
-  autoSave: true,
+  autoSave: false,
   autoSaveDelay: 800,
   defaultMode: 'seamless',
-  rememberSession: true,
+  rememberSession: false,
   previewLeft: false,
   syncScroll: true,
   typewriter: false,
   sidebarView: 'files',
-  showRecent: true,
+  showRecent: false,
   spellcheck: false,
   lastWorkspace: null,
 };

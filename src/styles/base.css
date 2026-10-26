@@ -233,6 +233,10 @@ html[data-platform='mac'] .titlebar {
   height: 30px;
 }
 
+.titlebar__save.is-dirty {
+  color: var(--accent);
+}
+
 html[data-platform='web'] .titlebar__right {
   padding-right: 2px;
 }
