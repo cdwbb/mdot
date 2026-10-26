@@ -15,8 +15,20 @@ import { backend } from '../../services/backend';
 import { useAppStore } from '../../store/useAppStore';
 import { joinFrontMatter, splitFrontMatter } from '../../utils/markdown';
 import { cleanSerializedMarkdown, imageAltMap } from '../markdown/fidelity';
+import { registerContentSync } from '../contentSync';
 import { centerCaretInScroller } from '../typewriter';
 import type { ScrollSlot } from '../../types';
+
+/** Serializing a whole document is the expensive part of typing, so it happens
+ *  once per short pause and in an idle window instead of on every change. The
+ *  pause is a trailing debounce; MAX_WAIT is only a safety valve so a store read
+ *  can never wait on a writer that never stops. */
+const SYNC_DELAY = 400;
+const SYNC_MAX_WAIT = 8000;
+
+/** Panes defer serialization, so the dirty indicator needs to know that some
+ *  pane still holds text the store has never seen. */
+let panesWithPendingEdits = 0;
 
 export interface PaneSeamlessHandle {
   focus: () => void;
@@ -47,9 +59,15 @@ export const PaneSeamlessEditor = forwardRef<PaneSeamlessHandle, Props>(
     const frontMatterRef = useRef<string | null>(null);
     const lastValueRef = useRef(content);
     const pendingRef = useRef<string | null>(null);
+    const syncTimerRef = useRef<number | null>(null);
+    const idleRef = useRef<number | null>(null);
+    const pendingEditRef = useRef(false);
+    const armedAtRef = useRef(0);
+    /** The ProseMirror doc last serialized; identity changes on every edit. */
+    const lastDocRef = useRef<unknown>(null);
+    const scrollFrameRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const onChangeRef = useRef(onChange);
     const onFocusRef = useRef(onFocus);
-    const scrollFrameRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const typewriter = useAppStore((s) => s.settings.typewriter);
     const [ready, setReady] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -57,7 +75,30 @@ export const PaneSeamlessEditor = forwardRef<PaneSeamlessHandle, Props>(
     onChangeRef.current = onChange;
     onFocusRef.current = onFocus;
 
+    const releasePendingEdits = () => {
+      if (!pendingEditRef.current) return;
+      pendingEditRef.current = false;
+      panesWithPendingEdits = Math.max(0, panesWithPendingEdits - 1);
+      const state = useAppStore.getState();
+      if (state.hasPendingEdits && panesWithPendingEdits === 0) {
+        state.setHasPendingEdits(false);
+      }
+    };
+
+    const cancelScheduledSync = () => {
+      if (syncTimerRef.current !== null) {
+        window.clearTimeout(syncTimerRef.current);
+        syncTimerRef.current = null;
+      }
+      if (idleRef.current !== null && typeof cancelIdleCallback === 'function') {
+        cancelIdleCallback(idleRef.current);
+      }
+      idleRef.current = null;
+      releasePendingEdits();
+    };
+
     const applyBody = (crepe: Crepe, markdown: string) => {
+      cancelScheduledSync();
       const split = splitFrontMatter(markdown);
       frontMatterRef.current = split.frontMatter;
       if (crepe.getMarkdown() === split.body) {
@@ -87,6 +128,7 @@ export const PaneSeamlessEditor = forwardRef<PaneSeamlessHandle, Props>(
         flush: () => {
           const crepe = crepeRef.current;
           if (!crepe || !readyRef.current) return lastValueRef.current;
+          cancelScheduledSync();
           const merged = joinFrontMatter(
             frontMatterRef.current,
             cleanSerializedMarkdown(crepe.getMarkdown(), imageAltMap(lastValueRef.current)),
@@ -122,8 +164,41 @@ export const PaneSeamlessEditor = forwardRef<PaneSeamlessHandle, Props>(
       readyRef.current = false;
       pendingRef.current = null;
 
-      const markInteraction = () => {
+      /** Arm the deferred flush. Milkdown's `updated` listener only fires 200ms
+       *  after a change, so real input calls this directly and the dirty dot
+       *  stays instant. */
+      const scheduleSync = () => {
+        if (cancelled || !readyRef.current || applyingRef.current) return;
+        if (!userInteractedRef.current) return;
+        const now = performance.now();
+        if (!pendingEditRef.current) {
+          pendingEditRef.current = true;
+          armedAtRef.current = now;
+          panesWithPendingEdits += 1;
+          const state = useAppStore.getState();
+          if (state.activeTabId === tabId && !state.hasPendingEdits) {
+            state.setHasPendingEdits(true);
+          }
+        }
+        const waited = now - armedAtRef.current;
+        if (syncTimerRef.current !== null) window.clearTimeout(syncTimerRef.current);
+        const delay = Math.max(0, Math.min(SYNC_DELAY, SYNC_MAX_WAIT - waited));
+        syncTimerRef.current = window.setTimeout(() => {
+          syncTimerRef.current = null;
+          if (typeof requestIdleCallback === 'function') {
+            idleRef.current = requestIdleCallback(() => serializeNow(), { timeout: 600 });
+          } else {
+            serializeNow();
+          }
+        }, delay);
+      };
+
+      const markInteraction = (event: Event) => {
         userInteractedRef.current = true;
+        const type = (event as InputEvent).inputType ?? '';
+        if (event.type === 'beforeinput' && (type.startsWith('insert') || type.startsWith('delete'))) {
+          scheduleSync();
+        }
       };
       const interactionEvents = ['beforeinput', 'paste', 'drop', 'keydown', 'pointerdown'] as const;
       for (const eventName of interactionEvents) {
@@ -197,17 +272,9 @@ export const PaneSeamlessEditor = forwardRef<PaneSeamlessHandle, Props>(
       });
 
       crepe.on((listener) => {
-        listener.markdownUpdated((_ctx, markdown) => {
-          if (cancelled || !readyRef.current || !userInteractedRef.current) return;
-          if (applyingRef.current) return;
-          const merged = joinFrontMatter(
-            frontMatterRef.current,
-            cleanSerializedMarkdown(markdown, imageAltMap(lastValueRef.current)),
-          );
-          if (merged === lastValueRef.current) return;
-          lastValueRef.current = merged;
-          onChangeRef.current(merged);
-        });
+        // Programmatic edits never dispatch beforeinput, so the doc diff is
+        // their only trigger.
+        listener.updated(() => scheduleSync());
         listener.selectionUpdated(() => {
           if (cancelled || !readyRef.current) return;
           if (!useAppStore.getState().settings.typewriter) return;
@@ -228,6 +295,32 @@ export const PaneSeamlessEditor = forwardRef<PaneSeamlessHandle, Props>(
       });
 
       let created = false;
+      const serializeNow = () => {
+        releasePendingEdits();
+        if (!readyRef.current || applyingRef.current || cancelled) return;
+        // ProseMirror mints a new doc per transaction, so identity is a free
+        // "did anything change since the last flush" test.
+        let doc: unknown = null;
+        try {
+          crepe.editor.action((ctx) => {
+            doc = ctx.get(editorViewCtx).state.doc;
+          });
+        } catch {
+          return;
+        }
+        if (doc === lastDocRef.current) return;
+        lastDocRef.current = doc;
+        const merged = joinFrontMatter(
+          frontMatterRef.current,
+          cleanSerializedMarkdown(crepe.getMarkdown(), imageAltMap(lastValueRef.current)),
+        );
+        if (merged === lastValueRef.current) return;
+        lastValueRef.current = merged;
+        onChangeRef.current(merged);
+      };
+      // Keyed by pane, not tab: both panes can show the same tab, and a shared
+      // key would let one pane flush over the other's buffer.
+      const offSync = registerContentSync(`pane-${slot}`, serializeNow);
       void crepe
         .create()
         .then(() => {
@@ -266,6 +359,8 @@ export const PaneSeamlessEditor = forwardRef<PaneSeamlessHandle, Props>(
       return () => {
         cancelled = true;
         readyRef.current = false;
+        offSync();
+        cancelScheduledSync();
         crepeRef.current = null;
         for (const eventName of interactionEvents) {
           host.removeEventListener(eventName, markInteraction, true);

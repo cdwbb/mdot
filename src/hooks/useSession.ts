@@ -1,11 +1,16 @@
 import { useEffect } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { backend } from '../services/backend';
+import { syncEditorContent } from '../editor/contentSync';
 
 /** Persist the tab workspace so the next launch returns to the same place. */
 export function useSessionPersistence(): void {
   const booted = useAppStore((s) => s.booted);
-  const tabs = useAppStore((s) => s.tabs);
+  /** Tab identity only — scroll ratios must not count as a session change. */
+  const sessionKey = useAppStore((s) =>
+    s.tabs.map((tab) => `${tab.id}:${tab.name}:${tab.path ?? ''}:${tab.view}`).join('|'),
+  );
+  const contentRev = useAppStore((s) => s.contentRev);
   const activeTabId = useAppStore((s) => s.activeTabId);
   const mode = useAppStore((s) => s.mode);
   const paneA = useAppStore((s) => s.paneA);
@@ -32,7 +37,8 @@ export function useSessionPersistence(): void {
   }, [
     booted,
     rememberSession,
-    tabs,
+    sessionKey,
+    contentRev,
     activeTabId,
     mode,
     paneA,
@@ -48,9 +54,9 @@ export function useSessionPersistence(): void {
   useEffect(() => {
     if (!booted) return;
     const save = () => {
-      const state = useAppStore.getState();
-      if (!state.settings.rememberSession) return;
-      void backend.saveSession(state.sessionSnapshot());
+      if (!useAppStore.getState().settings.rememberSession) return;
+      syncEditorContent();
+      void backend.saveSession(useAppStore.getState().sessionSnapshot());
     };
     const onVisibility = () => {
       if (document.visibilityState === 'hidden') save();

@@ -10,7 +10,7 @@ import {
   RefreshCw,
   FilePlus2,
 } from 'lucide-react';
-import { useAppStore } from '../store/useAppStore';
+import { selectDirty, useAppStore } from '../store/useAppStore';
 import { newDocument, openPath, openWorkspaceDialog, refreshTree } from '../app/actions';
 import { emitGoto } from '../editor/bus';
 import Logo from './Logo';
@@ -110,8 +110,8 @@ export default function Sidebar() {
   const showRecent = useAppStore((s) => s.settings.showRecent);
   const outline = useAppStore((s) => s.outline);
   const activeHeading = useAppStore((s) => s.activeHeading);
-  const doc = useAppStore((s) => s.doc);
-  const dirty = doc.content !== doc.savedContent;
+  const docPath = useAppStore((s) => s.doc.path);
+  const dirty = useAppStore(selectDirty);
   const setView = useAppStore((s) => s.setSidebarView);
   const setOpen = useAppStore((s) => s.setSidebarOpen);
   const activeItemRef = useRef<HTMLButtonElement>(null);
@@ -187,7 +187,7 @@ export default function Sidebar() {
                       key={node.path}
                       node={node}
                       depth={0}
-                      activePath={doc.path}
+                      activePath={docPath}
                       dirty={dirty}
                     />
                   ))}

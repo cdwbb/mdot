@@ -11,10 +11,10 @@
   --brand-green: #34a853;
 
   /* Type */
-  --font-ui: 'Inter', 'Segoe UI Variable Text', 'Segoe UI', -apple-system,
+  --font-ui: 'Inter', 'Inter Fallback', 'Segoe UI Variable Text', 'Segoe UI', -apple-system,
     BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Hiragino Sans GB',
     'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
-  --font-serif: 'Lora', 'Iowan Old Style', 'Source Han Serif SC', 'Noto Serif SC',
+  --font-serif: 'Lora', 'Lora Fallback', 'Iowan Old Style', 'Source Han Serif SC', 'Noto Serif SC',
     'Songti SC', Georgia, 'Times New Roman', serif;
   --font-editor: var(--font-serif);
   --font-mono: 'JetBrains Mono', 'Cascadia Mono', 'SF Mono', Menlo, Consolas,

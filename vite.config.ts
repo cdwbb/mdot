@@ -22,6 +22,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          if (id.includes('vite/preload-helper')) return 'react';
           if (!id.includes('node_modules')) return;
           if (id.includes('mermaid') || id.includes('cytoscape') || id.includes('d3-')) return 'mermaid';
           if (id.includes('katex')) return 'katex';

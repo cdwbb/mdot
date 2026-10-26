@@ -87,6 +87,13 @@ export interface OutlineItem {
   id: string;
 }
 
+export interface DocStats {
+  words: number;
+  chars: number;
+  cjk: number;
+  readingMinutes: number;
+}
+
 export interface ScrollTarget {
   /** Heading id (preferred) or null */
   anchor: string | null;

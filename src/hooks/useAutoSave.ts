@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { saveTab } from '../app/actions';
+import { syncEditorContent } from '../editor/contentSync';
 import { isDesktop } from '../services/backend';
 
 /** Autosave every dirty tab that already has a path. */
@@ -24,7 +25,11 @@ export function useAutoSave(): void {
     const flush = () => {
       const state = useAppStore.getState();
       if (!state.settings.autoSave) return;
-      for (const tab of state.tabs) {
+      // The WYSIWYG editors serialize on a pause, so a backgrounding flush has
+      // to pull their buffers in first or it saves stale text.
+      syncEditorContent();
+      const current = useAppStore.getState();
+      for (const tab of current.tabs) {
         if (tab.path && tab.content !== tab.savedContent) void saveTab(tab.id);
       }
     };

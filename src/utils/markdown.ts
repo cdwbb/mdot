@@ -1,4 +1,4 @@
-import type { OutlineItem } from '../types';
+import type { DocStats, OutlineItem } from '../types';
 
 export interface FrontMatterSplit {
   frontMatter: string | null;
@@ -84,12 +84,7 @@ export function extractOutline(markdown: string): OutlineItem[] {
   return items;
 }
 
-export function countStats(markdown: string): {
-  words: number;
-  chars: number;
-  cjk: number;
-  readingMinutes: number;
-} {
+export function countStats(markdown: string): DocStats {
   const { body } = splitFrontMatter(markdown);
   const withoutCode = body.replace(/```[\s\S]*?```/g, ' ');
   const chars = withoutCode.replace(/\s/g, '').length;

@@ -412,6 +412,9 @@
 /* Block handle / top bar */
 :is(.seamless-surface, .pane-seamless) .milkdown .milkdown-block-handle {
   color: var(--text-faint);
+  /* Crepe transitions every property of this absolutely positioned element, so
+     moving it while scrolling kicks off a 200ms geometry animation each time. */
+  transition: opacity var(--dur-fast) ease, color var(--dur-fast) ease;
 }
 
 /* The hidden handle is absolutely positioned without offsets, so it sits at the

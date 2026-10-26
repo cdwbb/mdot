@@ -11,7 +11,7 @@ import {
   Sun,
   X,
 } from 'lucide-react';
-import { useAppStore } from '../store/useAppStore';
+import { selectDirty, useAppStore } from '../store/useAppStore';
 import { isDesktop } from '../services/backend';
 import { exportHtml, saveDocument, showWelcome as goHome } from '../app/actions';
 import Logo from './Logo';
@@ -28,7 +28,8 @@ function windowAction(action: 'minimize' | 'toggleMaximize' | 'close'): void {
 }
 
 export default function TitleBar() {
-  const doc = useAppStore((s) => s.doc);
+  const docName = useAppStore((s) => s.doc.name);
+  const docPath = useAppStore((s) => s.doc.path);
   const activeTabId = useAppStore((s) => s.activeTabId);
   const saveState = useAppStore((s) => s.saveState);
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
@@ -37,7 +38,7 @@ export default function TitleBar() {
   const platform = useAppStore((s) => s.platform);
   const showWelcome = useAppStore((s) => s.showWelcome);
 
-  const dirty = doc.content !== doc.savedContent;
+  const dirty = useAppStore(selectDirty);
   const ThemeIcon =
     theme === 'system' ? Monitor : theme === 'ink' || theme === 'midnight' ? Moon : Sun;
 
@@ -54,8 +55,8 @@ export default function TitleBar() {
         </button>
         <span className="titlebar__divider" />
         <div className="titlebar__doc" data-tauri-drag-region>
-          <span className={`titlebar__filename ${doc.path ? '' : 'is-untitled'}`}>
-            {showWelcome ? '本地 Markdown 工作台' : doc.name}
+          <span className={`titlebar__filename ${docPath ? '' : 'is-untitled'}`}>
+            {showWelcome ? '本地 Markdown 工作台' : docName}
           </span>
           {dirty && !showWelcome && (
             <span className="dirty-dot" title="有未保存的修改" aria-label="有未保存的修改" />

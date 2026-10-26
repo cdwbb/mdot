@@ -6,6 +6,10 @@
     <meta name="color-scheme" content="light dark" />
     <title>mdot</title>
     <link rel="icon" type="image/svg+xml" href="/mdot.svg" />
+    <!-- First-paint faces: UI text and the default serif editor. -->
+    <link rel="preload" href="/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/lora-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/lora-600.woff2" as="font" type="font/woff2" crossorigin />
     <script>
       // Paint the correct theme before the app boots (avoids a white flash).
       (function () {

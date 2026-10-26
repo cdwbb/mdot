@@ -983,7 +983,6 @@
   opacity: 0.28;
   transition: opacity var(--dur-base) ease, color var(--dur-fast) ease,
     border-color var(--dur-fast) ease;
-  backdrop-filter: blur(8px);
 }
 
 .focus-exit:hover,

@@ -1,7 +1,6 @@
 import { Suspense, lazy, useEffect } from 'react';
 import { Loader2, X } from 'lucide-react';
 import { useAppStore } from './store/useAppStore';
-import { extractOutline } from './utils/markdown';
 import { onActiveHeading } from './editor/bus';
 import { useResolvedTheme } from './hooks/useResolvedTheme';
 import { useLifecycle } from './hooks/useLifecycle';
@@ -9,6 +8,7 @@ import { useGlobalShortcuts } from './hooks/useGlobalShortcuts';
 import { useAutoSave } from './hooks/useAutoSave';
 import { useFileDrop } from './hooks/useFileDrop';
 import { useSessionPersistence } from './hooks/useSession';
+import { useDerivedState } from './hooks/useDerivedState';
 import TitleBar from './components/TitleBar';
 import TabBar from './components/TabBar';
 import Sidebar from './components/Sidebar';
@@ -45,8 +45,6 @@ export default function App() {
   const loadingDoc = useAppStore((s) => s.loadingDoc);
   const mode = useAppStore((s) => s.mode);
   const docSeq = useAppStore((s) => s.docSeq);
-  const content = useAppStore((s) => s.doc.content);
-  const tabs = useAppStore((s) => s.tabs);
   const sidebarOpen = useAppStore((s) => s.sidebarOpen);
   const focusMode = useAppStore((s) => s.focusMode);
   const paletteOpen = useAppStore((s) => s.paletteOpen);
@@ -57,14 +55,7 @@ export default function App() {
   useGlobalShortcuts();
   useAutoSave();
   useSessionPersistence();
-
-  /* Outline is derived from the Markdown source, debounced to keep typing light. */
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      useAppStore.getState().setOutline(extractOutline(content));
-    }, 90);
-    return () => window.clearTimeout(timer);
-  }, [content]);
+  useDerivedState();
 
   useEffect(
     () =>
@@ -98,7 +89,7 @@ export default function App() {
             ) : (
               <Suspense fallback={<EditorSkeleton />}>
                 {mode === 'seamless' ? (
-                  <CrepeEditor key={docSeq} />
+                  <CrepeEditor />
                 ) : mode === 'split' ? (
                   <SplitEditor key={docSeq} dark={theme === 'dark'} />
                 ) : (

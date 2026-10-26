@@ -1,7 +1,9 @@
 import { create } from 'zustand';
+import { syncEditorContent } from '../editor/contentSync';
 import type {
   ConflictInfo,
   DocState,
+  DocStats,
   EditorMode,
   FileNode,
   OutlineItem,
@@ -49,6 +51,8 @@ const emptyDoc = (): DocState => ({
   mtime: null,
 });
 
+const EMPTY_STATS: DocStats = { words: 0, chars: 0, cjk: 0, readingMinutes: 0 };
+
 const emptyPane = (view: PaneView = 'seamless'): PaneState => ({
   tabId: null,
   view,
@@ -90,6 +94,8 @@ interface AppState {
   activeTabId: string | null;
   /** Bumped whenever the document must be replaced inside an editor. */
   docSeq: number;
+  /** Bumped on content edits only, so scroll churn never triggers a save. */
+  contentRev: number;
   mode: EditorMode;
   paneA: PaneState;
   paneB: PaneState;
@@ -103,7 +109,10 @@ interface AppState {
   tree: FileNode[];
   treeLoading: boolean;
   recent: RecentFile[];
+  /** Content typed but not yet serialized out of the WYSIWYG editor. */
+  hasPendingEdits: boolean;
   outline: OutlineItem[];
+  stats: DocStats;
   activeHeading: string | null;
   showWelcome: boolean;
   loadingDoc: boolean;
@@ -152,7 +161,9 @@ interface AppState {
   setTreeLoading(loading: boolean): void;
   setRecent(recent: RecentFile[]): void;
   pushRecent(entry: RecentFile): void;
+  setHasPendingEdits(pending: boolean): void;
   setOutline(outline: OutlineItem[]): void;
+  setStats(stats: DocStats): void;
   setActiveHeading(id: string | null): void;
   setLoadingDoc(loading: boolean): void;
   setSaveState(state: SaveState): void;
@@ -190,6 +201,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   tabs: [],
   activeTabId: null,
   docSeq: 0,
+  contentRev: 0,
   mode: DEFAULT_SETTINGS.defaultMode,
   paneA: emptyPane('seamless'),
   paneB: emptyPane('source'),
@@ -203,7 +215,9 @@ export const useAppStore = create<AppState>()((set, get) => ({
   tree: [],
   treeLoading: false,
   recent: [],
+  hasPendingEdits: false,
   outline: [],
+  stats: EMPTY_STATS,
   activeHeading: null,
   showWelcome: true,
   loadingDoc: false,
@@ -222,6 +236,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   setBooted: (booted) => set({ booted }),
 
   openTab: (doc, options = {}) => {
+    syncEditorContent();
     const initialView =
       options.view || (get().mode === 'split' ? 'source' : 'seamless');
     const candidateId = options.id || newTabId();
@@ -292,6 +307,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   },
 
   activateTab: (id, pane) => {
+    syncEditorContent();
     set((s) => {
       const tab = s.tabs.find((item) => item.id === id);
       if (!tab) return {};
@@ -332,6 +348,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   },
 
   closeTab: (id) => {
+    syncEditorContent();
     set((s) => {
       const index = s.tabs.findIndex((item) => item.id === id);
       if (index < 0) return {};
@@ -409,6 +426,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   },
 
   setDoc: (doc) => {
+    syncEditorContent();
     set((s) => {
       if (!s.activeTabId) {
         return {
@@ -432,6 +450,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
         tabs,
         doc,
         docSeq: s.docSeq + 1,
+        contentRev: s.contentRev + 1,
         showWelcome: false,
         saveState: 'idle',
         conflict: null,
@@ -441,6 +460,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
 
   setContent: (content) =>
     set((s) => ({
+      contentRev: s.contentRev + 1,
       doc: { ...s.doc, content },
       tabs: s.tabs.map((item) =>
         item.id === s.activeTabId ? { ...item, content } : item,
@@ -453,9 +473,10 @@ export const useAppStore = create<AppState>()((set, get) => ({
       const tabs = s.tabs.map((item) =>
         item.id === tabId ? { ...item, content } : item,
       );
-      if (s.activeTabId !== tabId) return { tabs };
+      if (s.activeTabId !== tabId) return { tabs, contentRev: s.contentRev + 1 };
       return {
         tabs,
+        contentRev: s.contentRev + 1,
         doc: { ...s.doc, content },
         saveState: s.saveState === 'saved' ? 'idle' : s.saveState,
       };
@@ -463,6 +484,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
 
   setSavedState: (path, name, content, mtime) =>
     set((s) => ({
+      contentRev: s.contentRev + 1,
       doc: { ...s.doc, path, name, content, savedContent: content, mtime },
       tabs: s.tabs.map((item) =>
         item.id === s.activeTabId
@@ -487,9 +509,10 @@ export const useAppStore = create<AppState>()((set, get) => ({
             }
           : item;
       const tabs = s.tabs.map(apply);
-      if (s.activeTabId !== tabId) return { tabs };
+      if (s.activeTabId !== tabId) return { tabs, contentRev: s.contentRev + 1 };
       return {
         tabs,
+        contentRev: s.contentRev + 1,
         doc: {
           ...s.doc,
           path: saved.path,
@@ -503,14 +526,17 @@ export const useAppStore = create<AppState>()((set, get) => ({
       };
     }),
 
-  setShowWelcome: (showWelcome) =>
+  setShowWelcome: (showWelcome) => {
+    syncEditorContent();
     set((s) =>
       showWelcome
         ? { showWelcome: true, activeTabId: null, doc: emptyDoc() }
         : { showWelcome: false, ...(s.tabs.length ? {} : {}) },
-    ),
+    );
+  },
 
   setMode: (mode) => {
+    syncEditorContent();
     set((s) => {
       if (mode === s.mode) return {};
       if (mode === 'dual') {
@@ -564,6 +590,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   },
 
   setPaneTab: (pane, tabId) => {
+    syncEditorContent();
     set((s) => {
       const tab = s.tabs.find((item) => item.id === tabId);
       if (!tab) return {};
@@ -587,6 +614,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   },
 
   setPaneView: (pane, view) => {
+    syncEditorContent();
     set((s) => {
       const paneA = pane === 'a' ? { ...s.paneA, view } : s.paneA;
       const paneB = pane === 'b' ? { ...s.paneB, view } : s.paneB;
@@ -599,6 +627,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   },
 
   setActivePane: (activePane) => {
+    syncEditorContent();
     set((s) => {
       if (s.mode !== 'dual') return { activePane };
       const active = choosePaneTab(s.tabs, s.paneA, s.paneB, activePane);
@@ -613,6 +642,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   },
 
   swapPanes: () => {
+    syncEditorContent();
     set((s) => {
       const paneA = s.paneB;
       const paneB = s.paneA;
@@ -754,7 +784,9 @@ export const useAppStore = create<AppState>()((set, get) => ({
       return { recent: [entry, ...rest].slice(0, 12) };
     }),
 
+  setHasPendingEdits: (hasPendingEdits) => set({ hasPendingEdits }),
   setOutline: (outline) => set({ outline }),
+  setStats: (stats) => set({ stats }),
   setActiveHeading: (id) => set({ activeHeading: id }),
   setLoadingDoc: (loading) => set({ loadingDoc: loading }),
   setSaveState: (saveState) => set({ saveState }),
@@ -793,4 +825,4 @@ export const useAppStore = create<AppState>()((set, get) => ({
   },
 }));
 
-export const selectDirty = (s: AppState) => s.doc.content !== s.doc.savedContent;
+export const selectDirty = (s: AppState) => s.hasPendingEdits || s.doc.content !== s.doc.savedContent;

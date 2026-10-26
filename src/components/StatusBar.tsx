@@ -1,13 +1,11 @@
-import { useMemo } from 'react';
 import { Columns2, Focus, LayoutGrid, Minus, PenLine, Plus, Timer, Type, Moon, Sun, Monitor } from 'lucide-react';
-import { useAppStore } from '../store/useAppStore';
-import { countStats } from '../utils/markdown';
+import { selectDirty, useAppStore } from '../store/useAppStore';
 import { toggleMode } from '../editor/modeSwitch';
 import { THEME_LABEL, nextTheme } from '../theme';
 
 export default function StatusBar() {
-  const content = useAppStore((s) => s.doc.content);
-  const dirty = useAppStore((s) => s.doc.content !== s.doc.savedContent);
+  const stats = useAppStore((s) => s.stats);
+  const dirty = useAppStore(selectDirty);
   const mode = useAppStore((s) => s.mode);
   const line = useAppStore((s) => s.cursorLine);
   const column = useAppStore((s) => s.cursorColumn);
@@ -26,7 +24,6 @@ export default function StatusBar() {
     useAppStore.getState().patchSettings({ zoom: clamped });
   };
 
-  const stats = useMemo(() => countStats(content), [content]);
   const activePaneState = activePane === 'a' ? paneA : paneB;
   const showCursor = mode === 'split' || (mode === 'dual' && activePaneState.view === 'source');
 

@@ -61,3 +61,28 @@
   font-style: normal;
   font-display: swap;
 }
+
+/*
+ * Metric-matched fallbacks (unicode-range keeps CJK on the system faces).
+ * Ratios measured against the bundled woff2 so that the swap-in does not move
+ * a single line of text.
+ */
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Segoe UI Variable Text'), local('Segoe UI'), local('Arial');
+  size-adjust: 111.14%;
+  ascent-override: 84.7%;
+  descent-override: 21.2%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-024F, U+0370-03FF, U+2000-206F, U+2070-209F, U+20A0-20CF;
+}
+
+@font-face {
+  font-family: 'Lora Fallback';
+  src: local('Iowan Old Style'), local('Georgia'), local('Times New Roman');
+  size-adjust: 99.89%;
+  ascent-override: 100.1%;
+  descent-override: 29.4%;
+  line-gap-override: 0%;
+  unicode-range: U+0000-024F, U+0370-03FF, U+2000-206F, U+2070-209F, U+20A0-20CF;
+}

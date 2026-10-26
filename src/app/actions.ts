@@ -1,5 +1,6 @@
 import { useAppStore } from '../store/useAppStore';
 import { backend, isDesktop } from '../services/backend';
+import { syncEditorContent } from '../editor/contentSync';
 import { getSample } from '../content/samples';
 import { deriveTitle } from '../utils/markdown';
 import { clearPendingScroll } from '../editor/modeSwitch';
@@ -184,6 +185,7 @@ export async function openSample(id: string): Promise<void> {
 }
 
 export async function saveTab(tabId: string, forceSaveAs = false): Promise<boolean> {
+  syncEditorContent();
   const state = useAppStore.getState();
   const tab = state.tabs.find((item) => item.id === tabId);
   if (!tab || savingIds.has(tabId)) return false;
@@ -227,6 +229,9 @@ export async function saveDocument(forceSaveAs = false): Promise<boolean> {
 }
 
 export async function saveAllDirty(): Promise<boolean> {
+  // Editors hold the last keystrokes until their pause timer fires, so pull them
+  // in before deciding which tabs still need writing.
+  syncEditorContent();
   const state = useAppStore.getState();
   const dirtyTabs = state.tabs.filter(
     (tab) => tab.path && tab.content !== tab.savedContent,
@@ -239,6 +244,7 @@ export async function saveAllDirty(): Promise<boolean> {
 }
 
 export async function exportHtml(): Promise<void> {
+  syncEditorContent();
   const state = useAppStore.getState();
   const tab = state.tabs.find((item) => item.id === state.activeTabId);
   const markdown = state.activeTabId === tab?.id ? state.doc.content : tab?.content;

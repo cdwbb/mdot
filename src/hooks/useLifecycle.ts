@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { confirm as nativeConfirm } from '@tauri-apps/plugin-dialog';
-import { useAppStore, DEFAULT_SETTINGS, SETTINGS_VERSION } from '../store/useAppStore';
+import { selectDirty, useAppStore, DEFAULT_SETTINGS, SETTINGS_VERSION } from '../store/useAppStore';
 import { backend, isDesktop } from '../services/backend';
 import { detectPlatform } from '../services/platform';
 import {
@@ -32,7 +32,9 @@ const clamp = (value: number, min: number, max: number): number =>
 export function useLifecycle(theme: ResolvedTheme): void {
   const settings = useAppStore((s) => s.settings);
   const booted = useAppStore((s) => s.booted);
-  const doc = useAppStore((s) => s.doc);
+  const docName = useAppStore((s) => s.doc.name);
+  const docPath = useAppStore((s) => s.doc.path);
+  const dirty = useAppStore(selectDirty);
   const recent = useAppStore((s) => s.recent);
   const workspaceRoot = useAppStore((s) => s.workspace?.root ?? null);
   const titleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -152,9 +154,8 @@ export function useLifecycle(theme: ResolvedTheme): void {
 
   /* -------------------------------------------------------- window title */
   useEffect(() => {
-    const clean = doc.name.replace(/\.(md|markdown|txt)$/i, '') || '未命名';
-    const isDirty = doc.content !== doc.savedContent;
-    const title = `${clean}${isDirty ? ' •' : ''} — mdot`;
+    const clean = docName.replace(/\.(md|markdown|txt)$/i, '') || '未命名';
+    const title = `${clean}${dirty ? ' •' : ''} — mdot`;
     document.title = title;
     if (!isDesktop) return;
     if (titleTimer.current) clearTimeout(titleTimer.current);
@@ -166,18 +167,18 @@ export function useLifecycle(theme: ResolvedTheme): void {
     return () => {
       if (titleTimer.current) clearTimeout(titleTimer.current);
     };
-  }, [doc.name, doc.content, doc.savedContent]);
+  }, [docName, dirty]);
 
   /* -------------------------------------------------------- file watcher */
   useEffect(() => {
     if (!isDesktop) return;
-    const paths = [doc.path, workspaceRoot].filter(Boolean) as string[];
+    const paths = [docPath, workspaceRoot].filter(Boolean) as string[];
     if (!paths.length) {
       void backend.unwatch().catch(() => undefined);
       return;
     }
     void backend.watch(paths).catch(() => undefined);
-  }, [doc.path, workspaceRoot]);
+  }, [docPath, workspaceRoot]);
 
   useEffect(() => {
     if (!isDesktop) return;
