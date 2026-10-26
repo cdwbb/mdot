@@ -2,6 +2,22 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.0.4] - 2026-10-26
+
+### Changed
+
+- 编辑大文档明显更流畅：无缝与双文档模式下，Markdown 序列化不再跟随每一次输入，而是在停顿约 0.4 秒后写回（持续输入时最多延后 8 秒）。同一份约 38 万字符的文档、真实输入节奏下，主线程长任务从 16 次 / 1311ms 降到 1 次 / 59ms，脚本耗时从 1287ms 降到 112ms
+- 未保存标记改在按键落下时立即出现，响应时间从 200ms 提前到 50ms 以内
+- 滚动更顺：脚本耗时 856ms → 222ms，掉帧 12 → 3，维持约 59fps；长文档的标题定位改用缓存，不再随滚动重复测量全文
+- 文档切换更快：小文档 → 大文档 1713ms → 827ms，大 → 中 445ms → 298ms，大 → 小 325ms → 252ms
+- 首屏更轻：入口 JS 从 786KB 拆到 220KB（React / Markdown / 编辑器分块按需加载），欢迎页可交互时间 238ms → 133ms
+- 自托管字体补齐度量补偿（`size-adjust` / `ascent-override` / `descent-override`），字体加载前后不再产生可见的宽度与行高跳动
+- 保存、自动保存、切换视图与切换窗格前，会先冲刷编辑器里尚未写回的输入，延迟序列化不会丢最后一次按键
+
+### Fixed
+
+- 双文档模式两个窗格打开同一文件时，延迟冲刷可能写到另一个窗格；现按窗格槽位注册
+
 ## [1.0.3] - 2026-10-26
 
 ### Added
@@ -72,3 +88,4 @@
 [1.0.1]: https://github.com/cdwbb/mdot/releases/tag/v1.0.1
 [1.0.2]: https://github.com/cdwbb/mdot/releases/tag/v1.0.2
 [1.0.3]: https://github.com/cdwbb/mdot/releases/tag/v1.0.3
+[1.0.4]: https://github.com/cdwbb/mdot/releases/tag/v1.0.4
