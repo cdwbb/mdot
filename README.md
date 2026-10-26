@@ -178,7 +178,7 @@ git tag v1.0.1
 git push origin main --tags
 ```
 
-推送 `v*` 标签会触发 [build.yml](.github/workflows/build.yml)：类型检查 → Windows（NSIS 安装版 + 便携版）与 macOS（DMG）并行构建 → 生成 `SHA256SUMS.txt` → 自动创建 Release 并上传产物。
+推送 `v*` 标签会触发 [build.yml](.github/workflows/build.yml)：类型检查 → Windows（NSIS 安装版 + 便携版）与 macOS（DMG）并行构建 → 生成 `SHA256SUMS.txt` → 自动创建 Release 并上传产物。普通提交与 PR 只跑类型检查和前端构建，不打完整安装包。
 
 ---
 

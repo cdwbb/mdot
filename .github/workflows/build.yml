@@ -1,12 +1,14 @@
 name: build
 
 # Pushing a tag like v1.0.0 builds Windows + macOS installers and publishes them
-# as a GitHub Release. Pushes to main only verify that everything compiles.
+# as a GitHub Release. Pushes and PRs only verify that everything compiles.
 on:
   workflow_dispatch:
   push:
     branches: [main]
     tags: ['v*']
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: write
@@ -26,6 +28,7 @@ jobs:
 
   build:
     needs: check
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
     strategy:
       fail-fast: false
       matrix:
