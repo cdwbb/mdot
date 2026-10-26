@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.0.6] - 2026-10-26
+
 ### Added
 
 - 缩放改为按窗格独立：双栏的源码与预览、双文档的 A 与 B 各记一档，窗格头部新增 `− 100% +` 控件
@@ -121,3 +123,4 @@
 [1.0.3]: https://github.com/cdwbb/mdot/releases/tag/v1.0.3
 [1.0.4]: https://github.com/cdwbb/mdot/releases/tag/v1.0.4
 [1.0.5]: https://github.com/cdwbb/mdot/releases/tag/v1.0.5
+[1.0.6]: https://github.com/cdwbb/mdot/releases/tag/v1.0.6

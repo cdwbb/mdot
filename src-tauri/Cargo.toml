@@ -1,6 +1,6 @@
 [package]
 name = "mdot-v2"
-version = "1.0.5"
+version = "1.0.6"
 description = "mdot — a local-first Markdown editor"
 authors = ["Mdot contributors"]
 edition = "2024"
