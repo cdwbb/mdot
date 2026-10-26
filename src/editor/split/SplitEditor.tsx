@@ -38,6 +38,8 @@ import {
 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import { backend } from '../../services/backend';
+import { usePaneZoom } from '../zoom';
+import ZoomStepper from '../../components/ZoomStepper';
 import { renderMarkdown } from '../markdown/pipeline';
 import { copyText, renderMermaidBlocks } from '../markdown/mermaid';
 import { emitActiveHeading, onGoto } from '../bus';
@@ -158,6 +160,8 @@ export default function SplitEditor({ dark }: Props) {
   const [wrap, setWrap] = useState(true);
   const [copied, setCopied] = useState(false);
   const [syncTick, setSyncTick] = useState(0);
+  const sourceZoom = usePaneZoom('split-source');
+  const previewZoom = usePaneZoom('split-preview');
 
   darkRef.current = dark;
 
@@ -580,18 +584,21 @@ export default function SplitEditor({ dark }: Props) {
 
   return (
     <div className={`split ${previewLeft ? 'split--preview-left' : ''}`}>
-      <div className="split__pane split__pane--source">
+      <div className="split__pane split__pane--source" {...sourceZoom.props}>
         <SourceToolbar
           viewRef={viewRef}
           label="源码"
           trailing={
-            <button
-              className={`icon-btn ${wrap ? 'is-active' : ''}`}
-              title="自动换行"
-              onClick={() => setWrap((value) => !value)}
-            >
-              <WrapText size={14} />
-            </button>
+            <>
+              <ZoomStepper pane="split-source" />
+              <button
+                className={`icon-btn ${wrap ? 'is-active' : ''}`}
+                title="自动换行"
+                onClick={() => setWrap((value) => !value)}
+              >
+                <WrapText size={14} />
+              </button>
+            </>
           }
         />
         <div className="split__scroll split__scroll--source" ref={sourceWrapRef}>
@@ -599,7 +606,7 @@ export default function SplitEditor({ dark }: Props) {
         </div>
       </div>
 
-      <div className="split__pane split__pane--preview">
+      <div className="split__pane split__pane--preview" {...previewZoom.props}>
         <div className="split__head">
           <span className="split__head-title">
             <ScrollText size={12} /> 预览（只读）
@@ -613,6 +620,7 @@ export default function SplitEditor({ dark }: Props) {
             {syncScroll ? '同步滚动' : '自由滚动'}
           </button>
           <div className="split__head-actions">
+            <ZoomStepper pane="split-preview" />
             <button
               className="icon-btn"
               title="用双文档并排编辑（两侧都可写）"

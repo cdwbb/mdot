@@ -7,6 +7,10 @@ import { useResolvedTheme } from '../../hooks/useResolvedTheme';
 import type { PaneKey, PaneState, TabState } from '../../types';
 import { PaneSeamlessEditor } from './PaneSeamlessEditor';
 import { PaneSourceEditor } from './PaneSourceEditor';
+import { usePaneZoom } from '../zoom';
+import ZoomStepper from '../../components/ZoomStepper';
+
+const zoomKeyOf = (paneKey: PaneKey) => (paneKey === 'a' ? 'dual-a' : 'dual-b');
 
 function tabFor(tabs: TabState[], pane: PaneState): TabState | null {
   return tabs.find((tab) => tab.id === pane.tabId) || null;
@@ -76,23 +80,26 @@ function PaneHeader({
           源码
         </button>
       </div>
-      <button
-        className="icon-btn dual-pane__tool"
-        title="在此窗格打开文件"
-        onClick={() => void openFileDialog(paneKey)}
-      >
-        <FolderOpen size={14} />
-      </button>
-      <button
-        className="icon-btn dual-pane__tool"
-        title="保存此窗格"
-        disabled={!tab}
-        onClick={() => {
-          if (tab) void saveTab(tab.id);
-        }}
-      >
-        <Save size={14} />
-      </button>
+      <div className="dual-pane__tools">
+        <ZoomStepper pane={zoomKeyOf(paneKey)} />
+        <button
+          className="icon-btn dual-pane__tool"
+          title="在此窗格打开文件"
+          onClick={() => void openFileDialog(paneKey)}
+        >
+          <FolderOpen size={14} />
+        </button>
+        <button
+          className="icon-btn dual-pane__tool"
+          title="保存此窗格"
+          disabled={!tab}
+          onClick={() => {
+            if (tab) void saveTab(tab.id);
+          }}
+        >
+          <Save size={14} />
+        </button>
+      </div>
     </div>
   );
 }
@@ -112,11 +119,13 @@ function DualPane({
 }) {
   const updateTabContent = useAppStore((s) => s.updateTabContent);
   const setActivePane = useAppStore((s) => s.setActivePane);
+  const zoom = usePaneZoom(zoomKeyOf(paneKey));
 
   return (
     <section
       className={`dual-pane ${active ? 'is-active' : ''}`}
       onPointerDown={() => setActivePane(paneKey)}
+      {...zoom.props}
     >
       <PaneHeader paneKey={paneKey} pane={pane} tab={tab} active={active} />
       <div className="dual-pane__body">

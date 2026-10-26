@@ -19,6 +19,7 @@ import type {
   TabState,
   Toast,
   WorkspaceInfo,
+  ZoomKey,
 } from '../types';
 
 export const SETTINGS_VERSION = 2;
@@ -29,7 +30,6 @@ export const DEFAULT_SETTINGS: Settings = {
   fontFamily: 'serif',
   fontSize: 17,
   contentWidth: 720,
-  zoom: 100,
   autoSave: false,
   autoSaveDelay: 800,
   defaultMode: 'seamless',
@@ -65,6 +65,16 @@ const asDoc = (tab: DocState): DocState => ({
   savedContent: tab.savedContent,
   mtime: tab.mtime,
 });
+
+/** Which pane the status bar and keyboard zoom act on after a mode switch. */
+const zoomTargetForMode = (mode: EditorMode, activePane: PaneKey): ZoomKey =>
+  mode === 'dual'
+    ? activePane === 'a'
+      ? 'dual-a'
+      : 'dual-b'
+    : mode === 'split'
+      ? 'split-source'
+      : 'seamless';
 
 let tabSeq = 0;
 const newTabId = (): string => `tab-${Date.now().toString(36)}-${++tabSeq}`;
@@ -103,6 +113,10 @@ interface AppState {
   splitLayout: 'columns' | 'rows';
   splitRatio: number;
   settings: Settings;
+  /** Document zoom per pane, in percent. Lives only for this session. */
+  paneZoom: Partial<Record<ZoomKey, number>>;
+  /** The pane the status bar and keyboard zoom act on. */
+  zoomTarget: ZoomKey;
   sidebarOpen: boolean;
   sidebarView: SidebarView;
   workspace: WorkspaceInfo | null;
@@ -150,6 +164,8 @@ interface AppState {
   swapPanes(): void;
   setSplitLayout(layout: 'columns' | 'rows'): void;
   setSplitRatio(ratio: number): void;
+  setPaneZoom(key: ZoomKey, percent: number): void;
+  setZoomTarget(key: ZoomKey): void;
   setTabScroll(tabId: string, slot: ScrollSlot, ratio: number): void;
   sessionSnapshot(): SessionState;
   restoreSession(session: SessionState): void;
@@ -209,6 +225,8 @@ export const useAppStore = create<AppState>()((set, get) => ({
   splitLayout: 'columns',
   splitRatio: 50,
   settings: DEFAULT_SETTINGS,
+  paneZoom: {},
+  zoomTarget: 'seamless',
   sidebarOpen: false,
   sidebarView: 'files',
   workspace: null,
@@ -571,6 +589,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
           doc: active.doc,
           docSeq: s.docSeq + 1,
           showWelcome: !s.tabs.length,
+          zoomTarget: zoomTargetForMode(mode, s.activePane),
         };
       }
       const pane = s.activePane === 'a' ? s.paneA : s.paneB;
@@ -585,6 +604,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
         doc: tab ? asDoc(tab) : emptyDoc(),
         docSeq: s.docSeq + 1,
         showWelcome: !s.tabs.length,
+        zoomTarget: zoomTargetForMode(mode, s.activePane),
       };
     });
   },
@@ -637,6 +657,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
         doc: active.doc,
         saveState: 'idle',
         conflict: null,
+        zoomTarget: activePane === 'a' ? 'dual-a' : 'dual-b',
       };
     });
   },
@@ -661,6 +682,11 @@ export const useAppStore = create<AppState>()((set, get) => ({
 
   setSplitRatio: (ratio) =>
     set({ splitRatio: Math.min(76, Math.max(24, ratio)) }),
+
+  setPaneZoom: (key, percent) =>
+    set((s) => (s.paneZoom[key] === percent ? {} : { paneZoom: { ...s.paneZoom, [key]: percent } })),
+
+  setZoomTarget: (key) => set((s) => (s.zoomTarget === key ? {} : { zoomTarget: key })),
 
   setTabScroll: (tabId, slot, ratio) =>
     set((s) => ({

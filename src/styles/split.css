@@ -138,7 +138,7 @@
   height: 100%;
   background: var(--bg-editor);
   color: var(--text);
-  font-size: calc(var(--editor-font-size) * 0.88);
+  font-size: calc(var(--editor-font-size) * 0.88 * var(--z, 1));
 }
 
 .split__scroll .cm-editor.cm-focused {
@@ -149,25 +149,25 @@
   font-family: var(--font-mono);
   line-height: 1.7;
   overflow: auto;
-  padding: 14px 0 40vh;
+  padding: calc(14px * var(--z, 1)) 0 40vh;
 }
 
 .split__scroll .cm-content {
-  padding: 8px 20px 0 12px;
+  padding: calc(8px * var(--z, 1)) calc(20px * var(--z, 1)) 0 calc(12px * var(--z, 1));
   caret-color: var(--accent);
 }
 
 .split__scroll .cm-line {
-  padding-left: 4px;
+  padding-left: calc(4px * var(--z, 1));
 }
 
 .split__scroll .cm-gutters {
   background: var(--bg-editor);
   color: var(--text-faint);
   border-right: 1px solid transparent;
-  font-size: 10.5px;
+  font-size: calc(10.5px * var(--z, 1));
   font-family: var(--font-ui);
-  padding-left: 4px;
+  padding-left: calc(4px * var(--z, 1));
 }
 
 .split__scroll .cm-activeLineGutter {
@@ -196,24 +196,24 @@
 .split__scroll .cm-search {
   background: var(--bg-elevated);
   border-top: 1px solid var(--border);
-  padding: 6px 8px;
-  font-size: 12px;
+  padding: calc(6px * var(--z, 1)) calc(8px * var(--z, 1));
+  font-size: calc(12px * var(--z, 1));
   font-family: var(--font-ui);
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: calc(5px * var(--z, 1));
   align-items: center;
 }
 
 .split__scroll .cm-search input,
 .split__scroll .cm-search button {
   font-family: var(--font-ui);
-  font-size: 11.5px;
+  font-size: calc(11.5px * var(--z, 1));
   border: 1px solid var(--border-strong);
   border-radius: 4px;
   background: var(--bg);
   color: var(--text);
-  padding: 2px 5px;
+  padding: calc(2px * var(--z, 1)) calc(5px * var(--z, 1));
 }
 
 .split__scroll .cm-search button {

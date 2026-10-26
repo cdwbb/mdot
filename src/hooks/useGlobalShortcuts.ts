@@ -11,6 +11,7 @@ import {
   saveDocument,
 } from '../app/actions';
 import { toggleMode } from '../editor/modeSwitch';
+import { ZOOM_STEP, clampZoom, zoomKeyAt, zoomOf } from '../editor/zoom';
 
 /** Global input map: keyboard shortcuts and Ctrl/Cmd + wheel document zoom.
     Editor-local shortcuts (Ctrl+F/B/I) stay inside the editor. */
@@ -126,8 +127,9 @@ export function useGlobalShortcuts(): void {
     return () => window.removeEventListener('keydown', onKeyDown, { capture: true });
   }, []);
 
-  /** Ctrl/Cmd + wheel zooms the document. Trackpad pinch arrives as many tiny
-      deltas, so the steps accumulate before the zoom actually moves. */
+  /** Ctrl/Cmd + wheel zooms the pane under the pointer; over the window chrome it
+      falls back to the pane that was focused last. Trackpad pinch arrives as many
+      tiny deltas, so the steps accumulate before the zoom actually moves. */
   useEffect(() => {
     let carry = 0;
     const onWheel = (event: WheelEvent) => {
@@ -135,15 +137,32 @@ export function useGlobalShortcuts(): void {
       event.preventDefault();
       carry += event.deltaY * (event.deltaMode === 1 ? 33 : 1);
       if (Math.abs(carry) < 60) return;
-      const step = carry > 0 ? -10 : 10;
+      const step = carry > 0 ? -ZOOM_STEP : ZOOM_STEP;
       carry = 0;
       const state = useAppStore.getState();
-      const current = state.settings.zoom;
-      const next = Math.min(200, Math.max(50, Math.round((current + step) / 10) * 10));
-      if (next !== current) state.patchSettings({ zoom: next });
+      const key = zoomKeyAt(event.target) ?? state.zoomTarget;
+      const current = zoomOf(key);
+      const next = clampZoom(current + step);
+      if (next !== current) state.setPaneZoom(key, next);
+      state.setZoomTarget(key);
+    };
+
+    const onFocusIn = (event: FocusEvent) => {
+      const key = zoomKeyAt(event.target);
+      if (key) useAppStore.getState().setZoomTarget(key);
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      const key = zoomKeyAt(event.target);
+      if (key) useAppStore.getState().setZoomTarget(key);
     };
 
     window.addEventListener('wheel', onWheel, { capture: true, passive: false });
-    return () => window.removeEventListener('wheel', onWheel, { capture: true });
+    window.addEventListener('focusin', onFocusIn, { capture: true });
+    window.addEventListener('pointerdown', onPointerDown, { capture: true });
+    return () => {
+      window.removeEventListener('wheel', onWheel, { capture: true });
+      window.removeEventListener('focusin', onFocusIn, { capture: true });
+      window.removeEventListener('pointerdown', onPointerDown, { capture: true });
+    };
   }, []);
 }

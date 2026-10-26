@@ -16,6 +16,7 @@ import { emitActiveHeading, onGoto } from '../bus';
 import { registerContentSync } from '../contentSync';
 import { registerScrollController, takePendingScroll } from '../modeSwitch';
 import { centerCaretInScroller } from '../typewriter';
+import { usePaneZoom } from '../zoom';
 
 const scrollable = (el: HTMLElement): number =>
   Math.max(1, el.scrollHeight - el.clientHeight);
@@ -52,6 +53,7 @@ export default function CrepeEditor() {
   const [fmOpen, setFmOpen] = useState(false);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const zoom = usePaneZoom('seamless');
 
   useEffect(() => {
     const host = hostRef.current;
@@ -543,7 +545,7 @@ export default function CrepeEditor() {
   };
 
   return (
-    <div className={`seamless-wrap ${ready ? 'is-ready' : 'is-booting'}`}>
+    <div className={`seamless-wrap ${ready ? 'is-ready' : 'is-booting'}`} {...zoom.props}>
       {frontMatter && (
         <div className={`fm-card ${fmOpen ? 'is-open' : ''}`}>
           <button className="fm-card__head" onClick={() => setFmOpen((open) => !open)}>

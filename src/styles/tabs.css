@@ -285,6 +285,21 @@
   color: var(--text-muted);
 }
 
+.dual-pane__tools {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* The header carries a document picker plus the zoom stepper, so on a narrow
+   pane the file/save icons yield before the zoom readout does. */
+@media (max-width: 1024px) {
+  .dual-pane__tool {
+    display: none;
+  }
+}
+
 .dual-pane__body {
   flex: 1;
   min-height: 0;
@@ -430,9 +445,9 @@
 }
 
 .pane-source .cm-scroller {
-  padding: 28px 24px 90px;
+  padding: calc(28px * var(--z, 1)) calc(24px * var(--z, 1)) calc(90px * var(--z, 1));
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: calc(13px * var(--z, 1));
   line-height: 1.75;
 }
 

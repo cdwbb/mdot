@@ -89,15 +89,67 @@ a {
   overflow: hidden;
 }
 
-/* Zoom scales the document surfaces only. The title bar, tab bar, sidebar,
-   status bar and editor toolbars keep their own size, so the shell never
-   reflows and no chrome drifts out of the window when writing gets bigger. */
+/* Every document surface carries its own `--ui-zoom`, set on the pane that hosts
+   it, so two panes can be zoomed independently. Only the writing area scales:
+   the title bar, tab bar, sidebar, status bar and editor toolbars keep their own
+   size, so the shell never reflows and no chrome drifts out of the window. */
 .seamless-host,
 .pane-seamless__host,
-.pane-source__host,
-.split__scroll > .cm-editor,
 .split__preview-inner {
   zoom: var(--ui-zoom, 1);
+}
+
+/* CodeMirror maps pointer coordinates and its viewport in raw CSS pixels, so an
+   ancestor `zoom` desynchronises it: scrolling to the end of a document leaves
+   the view blank. These surfaces scale through their own metrics instead, and
+   `--z` multiplies every structural length that follows. */
+.cm-host,
+.pane-source__host {
+  --z: var(--ui-zoom, 1);
+}
+
+/* Zoom readout that lives in a pane header. */
+.zoom-stepper {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  height: 24px;
+  padding: 0 2px;
+  border-radius: 6px;
+  background: var(--bg-sunken);
+}
+
+.zoom-stepper__btn,
+.zoom-stepper__value {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  padding: 0 3px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.zoom-stepper__value {
+  min-width: 34px;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.zoom-stepper__btn:hover:not(:disabled),
+.zoom-stepper__value:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.zoom-stepper__btn:disabled {
+  opacity: 0.35;
+  pointer-events: none;
 }
 
 .workspace {
@@ -551,6 +603,10 @@ select.field {
   .statusbar__stats {
     display: none;
   }
+  /* Two classes: .statusbar__item also sets display and comes later in this file. */
+  .statusbar__item.statusbar__zoom-label {
+    display: none;
+  }
 }
 
 @media (max-width: 700px) {
@@ -601,6 +657,11 @@ button.statusbar__item:disabled {
   justify-content: center;
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
+}
+
+.statusbar__zoom-label {
+  padding: 0 2px;
+  color: var(--text-faint);
 }
 
 .statusbar__item.is-accent {

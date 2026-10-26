@@ -70,7 +70,6 @@ export function useLifecycle(theme: ResolvedTheme): void {
         merged.settingsVersion = SETTINGS_VERSION;
         merged.fontSize = clamp(merged.fontSize, 13, 22);
         merged.contentWidth = clamp(merged.contentWidth, 560, 980);
-        merged.zoom = Math.round(clamp(merged.zoom ?? 100, 50, 200) / 10) * 10;
         if (![800, 10000, 30000, 60000, 120000, 300000].includes(merged.autoSaveDelay)) {
           merged.autoSaveDelay = 800;
         }
@@ -123,8 +122,6 @@ export function useLifecycle(theme: ResolvedTheme): void {
     root.dataset.platform = detectPlatform();
     root.style.setProperty('--editor-font-size', `${settings.fontSize}px`);
     root.style.setProperty('--content-width', `${settings.contentWidth}px`);
-    // Zoom is content-only: the document surfaces scale, window chrome does not.
-    root.style.setProperty('--ui-zoom', String(settings.zoom / 100));
     if (!useAppStore.getState().booted) return;
     const timer = setTimeout(() => {
       void backend.saveSettings(settings);

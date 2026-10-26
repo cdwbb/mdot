@@ -3,6 +3,8 @@ export type PaneKey = 'a' | 'b';
 /** Display used inside a pane of the third mode. */
 export type PaneView = 'seamless' | 'source';
 export type ScrollSlot = EditorMode | 'paneA' | 'paneB';
+/** A zoomable document surface: each dual pane and each half of the split view. */
+export type ZoomKey = 'seamless' | 'split-source' | 'split-preview' | 'dual-a' | 'dual-b';
 export type ThemePref = 'system' | 'paper' | 'snow' | 'jade' | 'ink' | 'midnight';
 export type SidebarView = 'files' | 'outline';
 export type SaveState = 'idle' | 'saving' | 'saved' | 'error';
@@ -14,8 +16,6 @@ export interface Settings {
   fontFamily: 'sans' | 'serif' | 'mono';
   fontSize: number;
   contentWidth: number;
-  /** Interface zoom in percent (50–200). */
-  zoom: number;
   autoSave: boolean;
   /** Idle time before autosave, in milliseconds. */
   autoSaveDelay: number;

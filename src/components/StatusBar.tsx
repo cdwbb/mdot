@@ -1,6 +1,7 @@
 import { Columns2, Focus, LayoutGrid, Minus, PenLine, Plus, Timer, Type, Moon, Sun, Monitor } from 'lucide-react';
 import { selectDirty, useAppStore } from '../store/useAppStore';
 import { toggleMode } from '../editor/modeSwitch';
+import { ZOOM_LABEL, ZOOM_MAX, ZOOM_MIN, ZOOM_STEP, clampZoom } from '../editor/zoom';
 import { THEME_LABEL, nextTheme } from '../theme';
 
 export default function StatusBar() {
@@ -16,12 +17,12 @@ export default function StatusBar() {
   const typewriter = useAppStore((s) => s.settings.typewriter);
   const autoSave = useAppStore((s) => s.settings.autoSave);
   const theme = useAppStore((s) => s.settings.theme);
-  const zoom = useAppStore((s) => s.settings.zoom);
+  const zoomTarget = useAppStore((s) => s.zoomTarget);
+  const zoom = useAppStore((s) => s.paneZoom[s.zoomTarget] ?? 100);
   const saveState = useAppStore((s) => s.saveState);
 
   const setZoom = (next: number) => {
-    const clamped = Math.min(200, Math.max(50, Math.round(next / 10) * 10));
-    useAppStore.getState().patchSettings({ zoom: clamped });
+    useAppStore.getState().setPaneZoom(zoomTarget, clampZoom(next));
   };
 
   const activePaneState = activePane === 'a' ? paneA : paneB;
@@ -118,17 +119,20 @@ export default function StatusBar() {
           </span>
         </span>
         <span className="statusbar__sep" />
+        <span className="statusbar__item statusbar__zoom-label" title="缩放作用的窗格">
+          {ZOOM_LABEL[zoomTarget]}
+        </span>
         <button
           className="statusbar__item statusbar__zoom"
           title="缩小 (-10%)"
-          onClick={() => setZoom(zoom - 10)}
-          disabled={zoom <= 50}
+          onClick={() => setZoom(zoom - ZOOM_STEP)}
+          disabled={zoom <= ZOOM_MIN}
         >
           <Minus size={11} />
         </button>
         <button
           className="statusbar__item statusbar__zoom-value"
-          title="恢复 100%（也可用 Ctrl + 滚轮缩放正文）"
+          title="恢复 100%（Ctrl + 滚轮缩放指针所在的窗格）"
           onClick={() => setZoom(100)}
         >
           {zoom}%
@@ -136,8 +140,8 @@ export default function StatusBar() {
         <button
           className="statusbar__item statusbar__zoom"
           title="放大 (+10%)"
-          onClick={() => setZoom(zoom + 10)}
-          disabled={zoom >= 200}
+          onClick={() => setZoom(zoom + ZOOM_STEP)}
+          disabled={zoom >= ZOOM_MAX}
         >
           <Plus size={11} />
         </button>
