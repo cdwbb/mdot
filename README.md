@@ -45,8 +45,8 @@ Built with Tauri 2 · React · TypeScript. No account, no telemetry, your files 
 
 | 平台 | 文件 | 说明 |
 |---|---|---|
-| Windows 10/11 x64 | `mdot-<版本>-setup.exe` | NSIS 安装向导（中文界面），当前用户安装，无需管理员权限 |
-| Windows 10/11 x64 | `mdot-<版本>-portable.exe` | 单文件便携版，复制到任意目录直接运行，不写注册表 |
+| Windows 10/11 x64 | `mdot-<版本>-setup.exe` | NSIS 安装向导（中文界面），当前用户安装，无需管理员权限；安装后注册 `.md` / `.markdown` / `.mdx` 文件关联 |
+| Windows 10/11 x64 | `mdot-<版本>-portable.exe` | 单文件便携版，复制到任意目录直接运行，不写注册表、不注册文件关联 |
 | macOS 12+ (Apple Silicon) | `mdot-<版本>-aarch64.dmg` | 拖入 Applications 即可 |
 
 校验下载完整性（每个 Release 附带 `SHA256SUMS.txt`）：

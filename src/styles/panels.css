@@ -327,7 +327,6 @@
   font-size: 14px;
   line-height: 1.75;
   color: var(--text-secondary);
-  max-width: 46ch;
 }
 
 .welcome__actions {

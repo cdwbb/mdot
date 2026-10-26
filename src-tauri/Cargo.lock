@@ -2071,7 +2071,7 @@ dependencies = [
 
 [[package]]
 name = "mdot-v2"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "encoding_rs",
  "notify",

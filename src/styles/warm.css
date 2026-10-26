@@ -97,7 +97,6 @@ html[data-platform='mac'] .titlebar {
 
 .welcome__tagline {
   margin: 20px 0 28px;
-  max-width: 52ch;
   font-family: var(--font-serif);
   font-size: 15.5px;
   line-height: 1.82;
