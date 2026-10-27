@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.0.8] - 2026-10-27
+
 ### Added
 
 - 新版本检测：设置 → 关于 里可手动检查（检查中 / 已是最新 / 检查失败 · 重试 / 更新到 v1.0.x 四态），或打开「启动时自动检查更新」（默认关闭）。后台检查只在真的发现新版本时提示一次，网络不通时完全静默
@@ -135,3 +137,4 @@
 [1.0.5]: https://github.com/cdwbb/mdot/releases/tag/v1.0.5
 [1.0.6]: https://github.com/cdwbb/mdot/releases/tag/v1.0.6
 [1.0.7]: https://github.com/cdwbb/mdot/releases/tag/v1.0.7
+[1.0.8]: https://github.com/cdwbb/mdot/releases/tag/v1.0.8
