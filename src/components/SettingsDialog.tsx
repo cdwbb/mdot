@@ -1,6 +1,6 @@
-import { X } from 'lucide-react';
+import { Github, X } from 'lucide-react';
 import { DEFAULT_SETTINGS, useAppStore } from '../store/useAppStore';
-import { isDesktop } from '../services/backend';
+import { backend, isDesktop } from '../services/backend';
 import { APP_VERSION } from '../version';
 import { THEMES } from '../theme';
 import type { EditorMode, ThemePref } from '../types';
@@ -13,6 +13,8 @@ const AUTOSAVE_DELAYS = [
   { value: 120000, label: '2 分钟' },
   { value: 300000, label: '5 分钟' },
 ] as const;
+
+const GITHUB_URL = 'https://github.com/cdwbb/mdot';
 
 function Row({
   label,
@@ -245,6 +247,14 @@ export default function SettingsDialog() {
             <div className="setting-group__title">关于</div>
             <Row label="mdot" desc={isDesktop ? '桌面版 · Tauri 2 + 系统 WebView' : '浏览器预览版 · 文件仅在本地处理'}>
               <span style={{ fontSize: 11, color: 'var(--text-faint)' }}>v{APP_VERSION}</span>
+              <button
+                className="icon-btn"
+                aria-label="在浏览器中打开 GitHub 项目主页"
+                title="GitHub 项目主页"
+                onClick={() => void backend.openExternal(GITHUB_URL)}
+              >
+                <Github size={14} />
+              </button>
             </Row>
             <Row
               label="数据与隐私"
