@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.0.7] - 2026-10-27
+
+### Added
+
+- 设置 → 关于 里的 GitHub 图标，点击打开项目主页
+
 ## [1.0.6] - 2026-10-26
 
 ### Added
@@ -124,3 +130,4 @@
 [1.0.4]: https://github.com/cdwbb/mdot/releases/tag/v1.0.4
 [1.0.5]: https://github.com/cdwbb/mdot/releases/tag/v1.0.5
 [1.0.6]: https://github.com/cdwbb/mdot/releases/tag/v1.0.6
+[1.0.7]: https://github.com/cdwbb/mdot/releases/tag/v1.0.7
