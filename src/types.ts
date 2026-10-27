@@ -30,6 +30,8 @@ export interface Settings {
   /** Show the recent-file list in the sidebar and welcome screen. */
   showRecent: boolean;
   spellcheck: boolean;
+  /** Ask GitHub for a newer release once per launch. Off by default. */
+  autoUpdateCheck: boolean;
   lastWorkspace: string | null;
 }
 
@@ -78,6 +80,8 @@ export interface Toast {
   id: number;
   message: string;
   kind: 'info' | 'success' | 'error';
+  /** Optional inline button; a toast with one stays up longer. */
+  action?: { label: string; run: () => void };
 }
 
 export interface OutlineItem {

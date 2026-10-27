@@ -942,6 +942,16 @@
   line-height: 1.5;
 }
 
+.toast__action {
+  flex: 0 0 auto;
+}
+
+/* A found update is the one settings control worth pointing at. */
+.setting-update.is-available {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
 @keyframes toast-in {
   from {
     opacity: 0;

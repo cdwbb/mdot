@@ -90,6 +90,7 @@ shasum -a 256 mdot-1.0.0-aarch64.dmg
 | **保存** | 失焦立即保存 + 可调自动保存间隔（0.8 秒 / 10 秒 / 30 秒 / 1 / 2 / 5 分钟），Rust 侧临时文件 + rename 原子写 |
 | **导出** | 导出 HTML；PDF 走系统打印；UTF-8 写盘（读取兼容 UTF-8 / UTF-16 / GBK） |
 | **外观** | 六套主题、自托管 Inter / Lora / JetBrains Mono 字体、深浅主题共用一套设计 token |
+| **版本检测** | 设置 → 关于 里手动检查，或打开「启动时自动检查更新」（默认关闭）；发现新版本只在右下角提示一次 |
 | **效率** | 命令面板（`Ctrl/Cmd + K`）覆盖几乎所有操作、完整快捷键体系、F2 重命名标签 |
 | **隐私** | 纯本地读写，无账号、无遥测、无云同步；Tauri capabilities 白名单限制前端可调用的命令与权限 |
 
@@ -198,7 +199,8 @@ git push origin main --tags
 
 诚实清单，欢迎提 Issue 或 PR 改进：
 
-- **未做代码签名**：Windows SmartScreen 与 macOS _gatekeeper_ 会拦一次；自动更新尚未落地。
+- **未做代码签名**：Windows SmartScreen 与 macOS _gatekeeper_ 会拦一次；自动安装更新尚未落地，目前只做新版本检测提示，仍需自己下载安装包。
+- **版本检测依赖直连 GitHub**：只查询 `api.github.com` 的最新 Release，网络不通时静默跳过，不会报错也不会弹窗。
 - **平台覆盖有限**：Windows 为主要验证平台；macOS 仅 Apple Silicon 且尚无真机验证；Linux 未适配。
 - **无 docx 导出、无 Vim 键位**。
 - **Milkdown 往返保真**：无缝模式保存会重新序列化 Markdown，表格对齐与少数转义可能被规范化；尚无往返保真测试。

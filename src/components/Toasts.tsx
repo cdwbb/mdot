@@ -21,6 +21,17 @@ export default function Toasts() {
           <div key={toast.id} className={`toast is-${toast.kind}`}>
             <Icon size={15} className="toast__icon" />
             <span className="toast__text">{toast.message}</span>
+            {toast.action && (
+              <button
+                className="btn btn--outline btn--sm toast__action"
+                onClick={() => {
+                  toast.action?.run();
+                  dismiss(toast.id);
+                }}
+              >
+                {toast.action.label}
+              </button>
+            )}
             <button
               className="icon-btn"
               style={{ width: 20, height: 20, color: 'var(--text-faint)' }}

@@ -92,6 +92,14 @@ export function useLifecycle(theme: ResolvedTheme): void {
       useAppStore.setState({ sidebarOpen: false });
       useAppStore.getState().setBooted(true);
 
+      if (isDesktop && useAppStore.getState().settings.autoUpdateCheck) {
+        // Let the first paint and session restore finish before touching the network.
+        setTimeout(() => {
+          if (cancelled) return;
+          void useAppStore.getState().checkUpdate({ background: true });
+        }, 1500);
+      }
+
       const last =
         session?.workspace || useAppStore.getState().settings.lastWorkspace;
       if (isDesktop) {

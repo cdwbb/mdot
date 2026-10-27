@@ -1,6 +1,7 @@
 import { Github, X } from 'lucide-react';
 import { DEFAULT_SETTINGS, useAppStore } from '../store/useAppStore';
 import { backend, isDesktop } from '../services/backend';
+import { openReleasePage } from '../services/updateCheck';
 import { APP_VERSION } from '../version';
 import { THEMES } from '../theme';
 import type { EditorMode, ThemePref } from '../types';
@@ -59,9 +60,29 @@ function Switch({
 export default function SettingsDialog() {
   const settings = useAppStore((s) => s.settings);
   const patch = useAppStore((s) => s.patchSettings);
+  const update = useAppStore((s) => s.update);
   const close = () => useAppStore.getState().setSettingsOpen(false);
 
   const setTheme = (theme: ThemePref) => patch({ theme });
+
+  const updateLabel =
+    update.status === 'available'
+      ? `更新到 v${update.version}`
+      : update.status === 'checking'
+        ? '检查中…'
+        : update.status === 'latest'
+          ? '已是最新'
+          : update.status === 'failed'
+            ? '检查失败 · 重试'
+            : '检查更新';
+
+  const onCheckUpdate = () => {
+    if (update.status === 'available') {
+      openReleasePage(update.url);
+      return;
+    }
+    void useAppStore.getState().checkUpdate();
+  };
 
   const reset = () => {
     patch({ ...DEFAULT_SETTINGS, lastWorkspace: settings.lastWorkspace });
@@ -247,6 +268,22 @@ export default function SettingsDialog() {
             <div className="setting-group__title">关于</div>
             <Row label="mdot" desc={isDesktop ? '桌面版 · Tauri 2 + 系统 WebView' : '浏览器预览版 · 文件仅在本地处理'}>
               <span style={{ fontSize: 11, color: 'var(--text-faint)' }}>v{APP_VERSION}</span>
+              {isDesktop && (
+                <button
+                  className={`btn btn--outline btn--sm setting-update${
+                    update.status === 'available' ? ' is-available' : ''
+                  }`}
+                  disabled={update.status === 'checking'}
+                  title={
+                    update.status === 'available'
+                      ? '在浏览器中打开该版本的发布页'
+                      : '向 GitHub 查询最新版本'
+                  }
+                  onClick={onCheckUpdate}
+                >
+                  {updateLabel}
+                </button>
+              )}
               <button
                 className="icon-btn"
                 aria-label="在浏览器中打开 GitHub 项目主页"
@@ -256,9 +293,21 @@ export default function SettingsDialog() {
                 <Github size={14} />
               </button>
             </Row>
+            {isDesktop && (
+              <Row
+                label="启动时自动检查更新"
+                desc="每次启动向 GitHub 查询一次公开的最新版本，不发送文档内容或设备标识；发现新版本只在右下角提示一次。"
+              >
+                <Switch
+                  on={settings.autoUpdateCheck}
+                  onChange={(value) => patch({ autoUpdateCheck: value })}
+                  label="启动时自动检查更新"
+                />
+              </Row>
+            )}
             <Row
               label="数据与隐私"
-              desc="纯本地读写：没有账号、没有遥测。文件写入由 Rust 侧原子完成。"
+              desc="纯本地读写：没有账号、没有遥测。文件写入由 Rust 侧原子完成。唯一的联网行为是你主动开启的版本检查。"
             >
               <button className="btn btn--outline btn--sm" onClick={reset}>
                 恢复默认

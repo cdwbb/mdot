@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 import { syncEditorContent } from '../editor/contentSync';
+import { isDesktop } from '../services/backend';
+import { checkForUpdate, openReleasePage } from '../services/updateCheck';
+import type { UpdateState } from '../services/updateCheck';
 import type {
   ConflictInfo,
   DocState,
@@ -40,6 +43,7 @@ export const DEFAULT_SETTINGS: Settings = {
   sidebarView: 'files',
   showRecent: false,
   spellcheck: false,
+  autoUpdateCheck: false,
   lastWorkspace: null,
 };
 
@@ -138,6 +142,8 @@ interface AppState {
   conflict: ConflictInfo | null;
   focusMode: boolean;
   toasts: Toast[];
+  /** Result of the last GitHub release check. Desktop only, session scoped. */
+  update: UpdateState;
   platform: 'windows' | 'mac' | 'web';
   cursorLine: number;
   cursorColumn: number;
@@ -190,11 +196,14 @@ interface AppState {
   setFocusMode(on: boolean): void;
   setPlatform(platform: 'windows' | 'mac' | 'web'): void;
   setCursorPosition(line: number, column: number): void;
-  toast(message: string, kind?: Toast['kind']): void;
+  toast(message: string, kind?: Toast['kind'], action?: Toast['action']): void;
   dismissToast(id: number): void;
+  /** `background` runs the launch check: failures stay hidden, a hit notifies. */
+  checkUpdate(options?: { background?: boolean }): Promise<void>;
 }
 
 let toastId = 0;
+let notifiedUpdateVersion: string | null = null;
 const toastTimers = new Map<number, ReturnType<typeof setTimeout>>();
 
 function choosePaneTab(
@@ -247,6 +256,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   conflict: null,
   focusMode: false,
   toasts: [],
+  update: { status: 'idle' },
   platform: 'web',
   cursorLine: 1,
   cursorColumn: 1,
@@ -825,7 +835,7 @@ export const useAppStore = create<AppState>()((set, get) => ({
   setCursorPosition: (line, column) =>
     set({ cursorLine: line, cursorColumn: Math.max(1, column) }),
 
-  toast: (message, kind = 'info') => {
+  toast: (message, kind = 'info', action) => {
     const id = ++toastId;
     const state = get();
     if (state.toasts.length >= 4) {
@@ -835,11 +845,12 @@ export const useAppStore = create<AppState>()((set, get) => ({
       toastTimers.delete(first.id);
       set({ toasts: rest });
     }
-    set((s) => ({ toasts: [...s.toasts, { id, message, kind }] }));
+    set((s) => ({ toasts: [...s.toasts, { id, message, kind, action }] }));
+    const life = kind === 'error' ? 5200 : action ? 8000 : 2800;
     const timer = setTimeout(() => {
       toastTimers.delete(id);
       set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }));
-    }, kind === 'error' ? 5200 : 2800);
+    }, life);
     toastTimers.set(id, timer);
   },
 
@@ -848,6 +859,25 @@ export const useAppStore = create<AppState>()((set, get) => ({
     if (timer) clearTimeout(timer);
     toastTimers.delete(id);
     set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }));
+  },
+
+  checkUpdate: async ({ background = false } = {}) => {
+    if (!isDesktop || get().update.status === 'checking') return;
+    set({ update: { status: 'checking' } });
+    const result = await checkForUpdate();
+    if (result.status === 'failed') {
+      // A background miss must leave no trace, including the checking state.
+      set({ update: background ? { status: 'idle' } : result });
+      return;
+    }
+    set({ update: result });
+    if (background && result.status === 'available' && notifiedUpdateVersion !== result.version) {
+      notifiedUpdateVersion = result.version;
+      get().toast(`发现新版本 v${result.version}`, 'info', {
+        label: '查看',
+        run: () => openReleasePage(result.url),
+      });
+    }
   },
 }));
 
